@@ -1,6 +1,5 @@
 name: CI
-on:
-- push
+on: push
 
 jobs:
   build_win:
@@ -10,11 +9,13 @@ jobs:
       uses: actions/setup-node@master
     - name: Checkout Harmony VPK Tool
       uses: actions/checkout@v3
-      - path: main
+      with:
+        path: main
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
-      - repository: 'barnabwhy/TFVPKTool'
-      - path: tfvpktool
+      with:
+        repository: 'barnabwhy/TFVPKTool'
+        path: tfvpktool
     - name: Compile TFVPKTool
       run: |
         cd tfvpktool
@@ -41,11 +42,13 @@ jobs:
       uses: actions/setup-node@master
     - name: Checkout Harmony VPK Tool
       uses: actions/checkout@v3
-      - path: main
+      with:
+        path: main
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
-      - repository: 'barnabwhy/TFVPKTool'
-      - path: tfvpktool
+      with:
+        repository: 'barnabwhy/TFVPKTool'
+        path: tfvpktool
     - name: Compile TFVPKTool
       run: |
         cd tfvpktool
