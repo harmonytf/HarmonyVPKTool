@@ -14,7 +14,8 @@
     "electron-json-storage": "^4.5.0"
   },
   "devDependencies": {
-    "electron": "^19.0.6"
+    "electron": "^19.0.6",
+    "electron-builder": "^23.1.0"
   },
   "productName": "Harmony VPK Tool",
   "build": {
@@ -39,12 +40,16 @@
       "!builds/**/*"
     ],
     "win": {
-      "icon" : "img/harmony.ico",
-      "target": ["portable"]
+      "icon": "img/harmony.ico",
+      "target": [
+        "portable"
+      ]
     },
     "linux": {
-      "icon" : "img/harmony.png",
-      "target": ["AppImage"],
+      "icon": "img/harmony.png",
+      "target": [
+        "AppImage"
+      ],
       "category": "Utility"
     }
   }
