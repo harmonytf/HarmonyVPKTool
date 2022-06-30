@@ -1,0 +1,36 @@
+name: CI
+on:
+- push
+
+jobs:
+  build_win:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup node
+      uses: actions/setup-node@master
+    - name: NPM install
+      run: npm install
+    - name: Build
+      run: npm run build:windows
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Harmony VPK Tool
+        path: builds/win/Harmony VPK Tool*.exe
+
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup node
+      uses: actions/setup-node@master
+    - name: NPM install
+      run: npm install
+    - name: Build
+      run: npm run build:linux
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Harmony VPK Tool
+        path: builds/linux/Harmony VPK Tool*.AppImage
