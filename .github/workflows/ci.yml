@@ -10,11 +10,11 @@ jobs:
       uses: actions/setup-node@master
     - name: Checkout Harmony VPK Tool
       uses: actions/checkout@v3
-        path: main
+      path: main
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
-        repository: 'barnabwhy/TFVPKTool'
-        path: tfvpktool
+      repository: 'barnabwhy/TFVPKTool'
+      path: tfvpktool
     - name: Compile TFVPKTool
       run: |
         cd tfvpktool
@@ -41,11 +41,11 @@ jobs:
       uses: actions/setup-node@master
     - name: Checkout Harmony VPK Tool
       uses: actions/checkout@v3
-        path: main
+      path: main
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
-        repository: 'barnabwhy/TFVPKTool'
-        path: tfvpktool
+      repository: 'barnabwhy/TFVPKTool'
+      path: tfvpktool
     - name: Compile TFVPKTool
       run: |
         cd tfvpktool
