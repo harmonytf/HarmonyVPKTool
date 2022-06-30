@@ -20,11 +20,13 @@ jobs:
       run: |
         cd tfvpktool
         npm install
-        npm run compile
+        npm run compile:base
+        move src/build/Release/lzham.node dist/build/Release/lzham.node
+        move LICENSE.md dist/LICENSE.md
     - name: Move compiled TFVPKTool to Harmony VPK Tool
       run: |
         cd ..
-        move "tfvpktool/dist" "main/tfvpktool"
+        move tfvpktool/dist main/tfvpktool
         cd main
     - name: NPM install
       run: npm install
@@ -53,11 +55,13 @@ jobs:
       run: |
         cd tfvpktool
         npm install
-        npm run compile
+        npm run compile:base
+        mv src/build/Release/lzham.node dist/build/Release/lzham.node
+        mv LICENSE.md dist/LICENSE.md
     - name: Move compiled TFVPKTool to Harmony VPK Tool
       run: |
         cd ..
-        move "tfvpktool/dist" "main/tfvpktool"
+        mv tfvpktool/dist main/tfvpktool
         cd main
     - name: NPM install
       run: npm install
