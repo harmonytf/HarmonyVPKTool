@@ -17,7 +17,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: Harmony VPK Tool
-        path: builds/win/Harmony VPK Tool*.exe
+        path: builds/Harmony VPK Tool*.exe
 
   build_linux:
     runs-on: ubuntu-latest
@@ -33,4 +33,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: Harmony VPK Tool
-        path: builds/linux/Harmony VPK Tool*.AppImage
+        path: builds/Harmony VPK Tool*.AppImage

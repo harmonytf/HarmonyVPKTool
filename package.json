@@ -39,6 +39,7 @@
       "!out/**/*",
       "!builds/**/*"
     ],
+    "publish": "never",
     "win": {
       "icon": "img/harmony.ico",
       "target": [
