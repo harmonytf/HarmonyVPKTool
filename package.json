@@ -5,8 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:windows": "electron-builder --win --x64",
-    "build:linux": "electron-builder --linux"
+    "build:windows": "electron-builder --win --x64 --publish never",
+    "build:linux": "electron-builder --linux --publish never"
   },
   "author": "HarmonyTF",
   "license": "GPLv3",
@@ -39,7 +39,6 @@
       "!out/**/*",
       "!builds/**/*"
     ],
-    "publish": "never",
     "win": {
       "icon": "img/harmony.ico",
       "target": [
