@@ -24,7 +24,6 @@ jobs:
       run: | 
         cd r5sdk
         msbuild ./r5dev/vproj/liblzham.vcxproj /p:Configuration=Release
-        cd ..
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
       with:
@@ -40,19 +39,21 @@ jobs:
         mkdir dist/build/Release
         move src/build/Release/lzham.node dist/build/Release/lzham.node
         move LICENSE.md dist/LICENSE.md
-        move dist ../main/tfvpktool
     - name: Move compiled TFVPKTool to Harmony VPK Tool
       run: |
         move tfvpktool/dist main/tfvpktool
-        cd main
     - name: NPM install
-      run: npm install
+      run: |
+        cd main
+        npm install
     - name: Build
-      run: npm run build:windows
+      run:  |
+        cd main
+        npm run build:windows
     - uses: actions/upload-artifact@v3
       with:
         name: Harmony VPK Tool
-        path: builds/Harmony VPK Tool*.exe
+        path: main/builds/Harmony VPK Tool*.exe
 
   # build_linux:
   #   runs-on: ubuntu-latest
