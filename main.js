@@ -108,7 +108,9 @@ function createWindow() {
 
   mainWindow.setMenu(null);
   
-  // mainWindow.openDevTools();
+  if(app.commandLine.hasSwitch("dev-tools")) {
+    mainWindow.openDevTools();
+  }
 
   mainWindow.on('ready-to-show', function() {
     mainWindow.show();
