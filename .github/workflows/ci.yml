@@ -22,7 +22,7 @@ jobs:
     - name: Compile lzham
       run: | 
         cd lzham
-        build lzham.sln /p:Configuration=Release
+        msbuild lzham.sln /p:Configuration=Release
         ls
         cd ..
     - name: Checkout TFVPKTool
