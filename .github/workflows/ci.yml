@@ -7,28 +7,34 @@ jobs:
     steps:
     - name: Setup node
       uses: actions/setup-node@master
+
     - name: Checkout Harmony VPK Tool
       uses: actions/checkout@v3
       with:
         path: main
+
     - name: Checkout r5sdk
       uses: actions/checkout@v3
       with:
         repository: 'Mauler125/r5sdk'
         path: r5sdk
+
     - name: Configure Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1.4.1
       with:
         arch: amd64
+
     - name: Compile lzham
       run: | 
         cd r5sdk
         msbuild ./r5dev/vproj/liblzham.vcxproj /p:Configuration=Release
+
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
       with:
         repository: 'barnabwhy/TFVPKTool'
         path: tfvpktool
+
     - name: Compile TFVPKTool
       run: |
         del tfvpktool/src/lzham/lib/liblzham_x64.lib 2>null
@@ -39,18 +45,23 @@ jobs:
         mkdir dist/build/Release
         move src/build/Release/lzham.node dist/build/Release/lzham.node
         move LICENSE.md dist/LICENSE.md
+
     - name: Move compiled TFVPKTool to Harmony VPK Tool
       run: |
         move tfvpktool/dist main/tfvpktool
+
     - name: NPM install
       run: |
         cd main
         npm install
+
     - name: Build
       run:  |
         cd main
         npm run build:windows
-    - uses: actions/upload-artifact@v3
+
+    - name: Upload artifact    
+      uses: actions/upload-artifact@v3
       with:
         name: Harmony VPK Tool
         path: main/builds/Harmony VPK Tool*.exe
