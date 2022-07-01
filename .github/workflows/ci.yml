@@ -11,21 +11,21 @@ jobs:
       uses: actions/checkout@v3
       with:
         path: main
-    - name: Checkout lzham
-      uses: actions/checkout@v3
-      with:
-        repository: 'richgel999/lzham_alpha'
-        path: lzham
-    - uses: ilammy/msvc-dev-cmd@v1.4.1
-      with:
-        arch: amd64
-    - name: Compile lzham
-      run: | 
-        cd lzham
-        devenv /upgrade
-        msbuild lzham.sln /p:Configuration=Release
-        ls
-        cd ..
+    # - name: Checkout lzham
+    #   uses: actions/checkout@v3
+    #   with:
+    #     repository: 'richgel999/lzham_alpha'
+    #     path: lzham
+    # - uses: ilammy/msvc-dev-cmd@v1.4.1
+    #   with:
+    #     arch: amd64
+    # - name: Compile lzham
+    #   run: | 
+    #     cd lzham
+    #     devenv /upgrade
+    #     msbuild lzham.sln /p:Configuration=Release
+    #     ls
+    #     cd ..
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
       with:
