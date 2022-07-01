@@ -22,6 +22,7 @@ jobs:
     - name: Compile lzham
       run: | 
         cd lzham
+        devenv /upgrade
         msbuild lzham.sln /p:Configuration=Release
         ls
         cd ..
