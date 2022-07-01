@@ -28,7 +28,7 @@ jobs:
     - name: Compile lzham
       run: | 
         cd lzham
-        msbuild tflzham.sln /p:Configuration=Release
+        msbuild ./dev/vproj/liblzham.vcxproj /p:Configuration=Release
 
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
@@ -39,7 +39,7 @@ jobs:
     - name: Compile TFVPKTool
       run: |
         del tfvpktool/src/lzham/lib/liblzham_x64.lib
-        move lzham/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
+        move lzham/dev/vproj/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
         cd tfvpktool
         npm install
         npm run compile:base
