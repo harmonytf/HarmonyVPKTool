@@ -102,18 +102,18 @@ jobs:
     - name: Compile TFVPKTool
       run: |
         rm tfvpktool/src/lzham/lib/liblzham_x64.lib
-        move lzham/build/dev/vproj/libliblzham.a tfvpktool/src/lzham/lib/libliblzham.a
+        mv lzham/build/dev/vproj/libliblzham.a tfvpktool/src/lzham/lib/libliblzham.a
         cd tfvpktool
-        sed -i 's/liblzham_x64.lib/libliblzham.a/g' ./src/binding.gyp
+        sed -i 's/liblzham_x64.lib/libliblzham.a/g' src/binding.gyp
         npm install
         npm run compile:base
         mkdir dist/build/Release
-        move src/build/Release/lzham.node dist/build/Release/lzham.node
-        move LICENSE.md dist/LICENSE.md
+        mv src/build/Release/lzham.node dist/build/Release/lzham.node
+        mv LICENSE.md dist/LICENSE.md
 
     - name: Move compiled TFVPKTool to Harmony VPK Tool
       run: |
-        move tfvpktool/dist main/tfvpktool
+        mv tfvpktool/dist main/tfvpktool
 
     - name: NPM install
       run: |
