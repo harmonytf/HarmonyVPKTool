@@ -2,9 +2,19 @@ name: CI
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
+  delete-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kolpav/purge-artifacts-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          expire-in: 15minutes
+          
   build_win:
     name: Build (Windows)
     runs-on: windows-2022
+    needs: delete-artifacts
+    
     steps:
     - name: Setup node
       uses: actions/setup-node@master
@@ -70,6 +80,8 @@ jobs:
   build_linux:
     name: Build (Linux)
     runs-on: ubuntu-latest
+    needs: delete-artifacts
+    
     steps:
     - name: Setup node
       uses: actions/setup-node@master
