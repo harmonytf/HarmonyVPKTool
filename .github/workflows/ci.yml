@@ -105,6 +105,7 @@ jobs:
         mv lzham/build/dev/vproj/libliblzham.a tfvpktool/src/lzham/lib/libliblzham.a
         cd tfvpktool
         sed -i 's/liblzham_x64.lib/libliblzham.a/g' src/binding.gyp
+        sed -i 's/c++20/c++2a/g' src/binding.gyp
         npm install
         npm run compile:base
         mkdir dist/build/Release
