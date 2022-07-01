@@ -93,38 +93,39 @@ jobs:
         cmake --build "build"
         find . -name *.a
 
-    # - name: Checkout TFVPKTool
-    #   uses: actions/checkout@v3
-    #   with:
-    #     repository: 'barnabwhy/TFVPKTool'
-    #     path: tfvpktool
+    - name: Checkout TFVPKTool
+      uses: actions/checkout@v3
+      with:
+        repository: 'barnabwhy/TFVPKTool'
+        path: tfvpktool
 
-    # - name: Compile TFVPKTool
-    #   run: |
-    #     rm tfvpktool/src/lzham/lib/liblzham_x64.lib
-    #     move lzham/dev/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
-    #     cd tfvpktool
-    #     npm install
-    #     npm run compile:base
-    #     mkdir dist/build/Release
-    #     move src/build/Release/lzham.node dist/build/Release/lzham.node
-    #     move LICENSE.md dist/LICENSE.md
+    - name: Compile TFVPKTool
+      run: |
+        rm tfvpktool/src/lzham/lib/liblzham_x64.lib
+        move lzham/build/dev/vproj/libliblzham.a tfvpktool/src/lzham/lib/libliblzham.a
+        cd tfvpktool
+        sed -i 's/liblzham_x64.lib/libliblzham.a/g' ./src/binding.gyp
+        npm install
+        npm run compile:base
+        mkdir dist/build/Release
+        move src/build/Release/lzham.node dist/build/Release/lzham.node
+        move LICENSE.md dist/LICENSE.md
 
-    # - name: Move compiled TFVPKTool to Harmony VPK Tool
-    #   run: |
-    #     move tfvpktool/dist main/tfvpktool
+    - name: Move compiled TFVPKTool to Harmony VPK Tool
+      run: |
+        move tfvpktool/dist main/tfvpktool
 
-    # - name: NPM install
-    #   run: |
-    #     cd main
-    #     npm install
+    - name: NPM install
+      run: |
+        cd main
+        npm install
 
-    # - name: Build
-    #   run:  |
-    #     cd main
-    #     npm run build:linux
+    - name: Build
+      run:  |
+        cd main
+        npm run build:linux
 
-    # - uses: actions/upload-artifact@v3
-    #   with:
-    #     name: Harmony VPK Tool - AppImage
-    #     path: builds/Harmony VPK Tool*.AppImage
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Harmony VPK Tool - AppImage
+        path: builds/Harmony VPK Tool*.AppImage
