@@ -28,7 +28,7 @@ jobs:
     - name: Compile lzham
       run: | 
         cd lzham
-        msbuild ./dev/vproj/liblzham.vcxproj /p:Configuration=Release
+        msbuild ./dev/vproj/liblzham.vcxproj /p:Configuration=Release /p:Platform=x64
 
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
