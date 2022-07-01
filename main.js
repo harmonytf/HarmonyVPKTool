@@ -45,12 +45,8 @@ async function handleReadVPKTree(event, vpkPath) {
 let copierCloseFunc = () => {};;
 
 async function handleCopyFiles(event, vpkPath, files) {
-  let baseDir = process.env.PORTABLE_EXECUTABLE_DIR || (process.defaultApp ? app.getAppPath() : path.dirname(app.getPath("exe")));
-  let defaultPath = path.join(baseDir, "vpk_out", vpkPath.split(/\/|\\/).pop().replace("_dir.vpk", ""));
-  if(!fs.existsSync(defaultPath)) fs.mkdirSync(defaultPath, { recursive: true });
   const { canceled, filePaths } = await dialog.showOpenDialog({
     title: "Select Output Folder",
-    defaultPath,
     properties: ['openDirectory']
   })
   if (canceled)
