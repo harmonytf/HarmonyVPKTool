@@ -3,7 +3,7 @@ on: push
 
 jobs:
   build_win:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
     - name: Setup node
       uses: actions/setup-node@master
@@ -36,7 +36,8 @@ jobs:
         cd tfvpktool
         npm install
         npm run compile:base
-        move /src/build/Release/lzham.node /dist/build/Release/lzham.node
+        mkdir dist/build/Release
+        move src/build/Release/lzham.node dist/build/Release/lzham.node
         move LICENSE.md dist/LICENSE.md
     - name: Move compiled TFVPKTool to Harmony VPK Tool
       run: |
