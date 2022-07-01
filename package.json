@@ -1,20 +1,21 @@
 {
   "name": "harmony_vpk_tool",
   "version": "1.0.0",
-  "description": "",
+  "description": "An electron-based app for unpacking Respawn VPK files.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:windows": "electron-builder --win",
-    "build:linux": "electron-builder --linux"
+    "build:windows": "electron-builder --win --x64 --publish never",
+    "build:linux": "electron-builder --linux --publish never"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "HarmonyTF",
+  "license": "GPLv3",
   "dependencies": {
     "electron-json-storage": "^4.5.0"
   },
   "devDependencies": {
-    "electron": "^19.0.6"
+    "electron": "^19.0.6",
+    "electron-builder": "^23.1.0"
   },
   "productName": "Harmony VPK Tool",
   "build": {
@@ -39,12 +40,16 @@
       "!builds/**/*"
     ],
     "win": {
-      "icon" : "img/harmony.ico",
-      "target": ["portable"]
+      "icon": "img/harmony.ico",
+      "target": [
+        "portable"
+      ]
     },
     "linux": {
-      "icon" : "img/harmony.png",
-      "target": ["AppImage"],
+      "icon": "img/harmony.png",
+      "target": [
+        "AppImage"
+      ],
       "category": "Utility"
     }
   }

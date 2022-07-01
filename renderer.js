@@ -210,7 +210,7 @@ function showFileDetails(f) {
     document.querySelector("#details > .filePartsTitle").classList.remove("hidden");
     document.querySelector("#details > .fileParts").classList.remove("hidden");
     document.querySelector("#details > .fileParts").innerHTML = f.fileParts.map(p => {
-        return `<div class="filePart"><p>Archive Index: <span>${p.archiveIndex}</span></p><p>Packed Size: <span>${p.entryLength}</span></p><p>Unpacked Size: <span>${p.entryLengthUncompressed}</span></p><p>Load Flags: <span>${p.loadFlags}</span></p><p>Texture Flags: <span>${p.textureFlags}</span></p></div>`
+        return `<div class="filePart"><p>Archive Index: <span>${p.archiveIndex}</span></p><p>Entry Offset: <span>${p.entryOffset}</span><p>Packed Size: <span>${p.entryLength}</span></p><p>Unpacked Size: <span>${p.entryLengthUncompressed}</span></p><p>Load Flags: <span>${p.loadFlags}</span></p><p>Texture Flags: <span>${p.textureFlags}</span></p></div>`
     }).join("")
 
     document.querySelector("#details > #detailsUnpackButton").removeEventListeners("click");
