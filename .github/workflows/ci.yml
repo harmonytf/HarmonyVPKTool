@@ -37,7 +37,7 @@ jobs:
 
     - name: Compile TFVPKTool
       run: |
-        del tfvpktool/src/lzham/lib/liblzham_x64.lib 2>null
+        del tfvpktool/src/lzham/lib/liblzham_x64.lib
         move lzham/r5dev/vproj/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
         cd tfvpktool
         npm install
@@ -63,7 +63,7 @@ jobs:
     - name: Upload artifact    
       uses: actions/upload-artifact@v3
       with:
-        name: Harmony VPK Tool
+        name: Harmony VPK Tool - x64 Portable
         path: main/builds/Harmony VPK Tool*.exe
 
   # build_linux:
