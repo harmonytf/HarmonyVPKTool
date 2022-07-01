@@ -8,7 +8,7 @@ Super-fast and made with ♥
 ## Why use Harmony VPK Tool over cra0's VPKTool?
 It's over 2x faster and looks nicer
 
-![](/screenshots/smugglers_cove_done.png?raw=true)
+![Unpacking englishclient_mp_smugglers_cove.bsp.pak000_dir.vpk (34.73s)](/screenshots/smugglers_cove_done.png?raw=true)
 Unpacking the same VPK took cra0's took 1:15, over twice as long
 
 ## Installing
