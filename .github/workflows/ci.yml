@@ -43,6 +43,8 @@ jobs:
     - name: Move compiled TFVPKTool to Harmony VPK Tool
       run: |
         cd ..
+        ls
+        ls tfvpktool
         move tfvpktool/dist main/tfvpktool
         cd main
     - name: NPM install
