@@ -91,7 +91,7 @@ jobs:
         cd lzham
         cmake -S "." -B "build" -G "Unix Makefiles"
         cmake --build "build"
-        ls lib
+        ls
 
     # - name: Checkout TFVPKTool
     #   uses: actions/checkout@v3
