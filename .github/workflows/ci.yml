@@ -2,70 +2,70 @@ name: CI
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  # build_win:
-  #   name: Build (Windows)
-  #   runs-on: windows-2022
-  #   steps:
-  #   - name: Setup node
-  #     uses: actions/setup-node@master
+  build_win:
+    name: Build (Windows)
+    runs-on: windows-2022
+    steps:
+    - name: Setup node
+      uses: actions/setup-node@master
 
-  #   - name: Checkout Harmony VPK Tool
-  #     uses: actions/checkout@v3
-  #     with:
-  #       path: main
+    - name: Checkout Harmony VPK Tool
+      uses: actions/checkout@v3
+      with:
+        path: main
 
-  #   - name: Checkout tf_lzham
-  #     uses: actions/checkout@v3
-  #     with:
-  #       repository: 'barnabwhy/tf_lzham'
-  #       path: lzham
+    - name: Checkout tf_lzham
+      uses: actions/checkout@v3
+      with:
+        repository: 'barnabwhy/tf_lzham'
+        path: lzham
 
-  #   - name: Configure Developer Command Prompt
-  #     uses: ilammy/msvc-dev-cmd@v1.4.1
-  #     with:
-  #       arch: amd64
+    - name: Configure Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1.4.1
+      with:
+        arch: amd64
 
-  #   - name: Compile lzham
-  #     run: | 
-  #       cd lzham
-  #       msbuild ./r5dev/vproj/liblzham.vcxproj /p:Configuration=Release
+    - name: Compile lzham
+      run: | 
+        cd lzham
+        msbuild ./r5dev/vproj/liblzham.vcxproj /p:Configuration=Release
 
-  #   - name: Checkout TFVPKTool
-  #     uses: actions/checkout@v3
-  #     with:
-  #       repository: 'barnabwhy/TFVPKTool'
-  #       path: tfvpktool
+    - name: Checkout TFVPKTool
+      uses: actions/checkout@v3
+      with:
+        repository: 'barnabwhy/TFVPKTool'
+        path: tfvpktool
 
-  #   - name: Compile TFVPKTool
-  #     run: |
-  #       del tfvpktool/src/lzham/lib/liblzham_x64.lib
-  #       move lzham/r5dev/vproj/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
-  #       cd tfvpktool
-  #       npm install
-  #       npm run compile:base
-  #       mkdir dist/build/Release
-  #       move src/build/Release/lzham.node dist/build/Release/lzham.node
-  #       move LICENSE.md dist/LICENSE.md
+    - name: Compile TFVPKTool
+      run: |
+        del tfvpktool/src/lzham/lib/liblzham_x64.lib
+        move lzham/r5dev/vproj/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
+        cd tfvpktool
+        npm install
+        npm run compile:base
+        mkdir dist/build/Release
+        move src/build/Release/lzham.node dist/build/Release/lzham.node
+        move LICENSE.md dist/LICENSE.md
 
-  #   - name: Move compiled TFVPKTool to Harmony VPK Tool
-  #     run: |
-  #       move tfvpktool/dist main/tfvpktool
+    - name: Move compiled TFVPKTool to Harmony VPK Tool
+      run: |
+        move tfvpktool/dist main/tfvpktool
 
-  #   - name: NPM install
-  #     run: |
-  #       cd main
-  #       npm install
+    - name: NPM install
+      run: |
+        cd main
+        npm install
 
-  #   - name: Build
-  #     run:  |
-  #       cd main
-  #       npm run build:windows
+    - name: Build
+      run:  |
+        cd main
+        npm run build:windows
 
-  #   - name: Upload artifact    
-  #     uses: actions/upload-artifact@v3
-  #     with:
-  #       name: Harmony VPK Tool - x64 Portable
-  #       path: main/builds/Harmony VPK Tool*.exe
+    - name: Upload artifact    
+      uses: actions/upload-artifact@v3
+      with:
+        name: Harmony VPK Tool - x64 Portable
+        path: main/builds/Harmony VPK Tool*.exe
   
   build_linux:
     name: Build (Linux)
@@ -83,7 +83,6 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: 'barnabwhy/tf_lzham'
-        ref: cmake
         path: lzham
 
     - name: Compile lzham
@@ -129,4 +128,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: Harmony VPK Tool - AppImage
-        path: builds/Harmony VPK Tool*.AppImage
+        path: main/builds/Harmony VPK Tool*.AppImage
