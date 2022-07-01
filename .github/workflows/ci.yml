@@ -31,12 +31,14 @@ jobs:
         path: tfvpktool
     - name: Compile TFVPKTool
       run: |
+        del tfvpktool/src/lzham/lib/liblzham_x64.lib 2>null
         move /y r5sdk/r5dev/vproj/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
         cd tfvpktool
         npm install
         npm run compile:base
         mkdir dist/build/Release
-        move /y src/build/Release/lzham.node dist/build/Release/lzham.node
+        del dist/build/Release/lzham.node 2>null
+        move src/build/Release/lzham.node dist/build/Release/lzham.node
         move LICENSE.md dist/LICENSE.md
     - name: Move compiled TFVPKTool to Harmony VPK Tool
       run: |
