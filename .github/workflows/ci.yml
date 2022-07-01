@@ -20,10 +20,10 @@ jobs:
         repository: 'barnabwhy/tf_lzham'
         path: lzham
 
-    - name: Configure Developer Command Prompt
-      uses: ilammy/msvc-dev-cmd@v1.4.1
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
       with:
-        arch: amd64
+        msbuild-architecture: x64
 
     - name: Compile lzham
       run: | 
