@@ -11,6 +11,20 @@ jobs:
       uses: actions/checkout@v3
       with:
         path: main
+    - name: Checkout lzham
+      uses: actions/checkout@v3
+      with:
+        repository: 'richgel999/lzham_alpha'
+        path: lzham
+    - name: Compile lzham
+    - uses: ilammy/msvc-dev-cmd@v1.4.1
+      with:
+        arch: amd64
+      run: | 
+        cd lzham
+        build project.sln /p:Configuration=Release
+        ls
+        cd ..
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
       with:
@@ -37,37 +51,37 @@ jobs:
         name: Harmony VPK Tool
         path: builds/Harmony VPK Tool*.exe
 
-  build_linux:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Setup node
-      uses: actions/setup-node@master
-    - name: Checkout Harmony VPK Tool
-      uses: actions/checkout@v3
-      with:
-        path: main
-    - name: Checkout TFVPKTool
-      uses: actions/checkout@v3
-      with:
-        repository: 'barnabwhy/TFVPKTool'
-        path: tfvpktool
-    - name: Compile TFVPKTool
-      run: |
-        cd tfvpktool
-        npm install
-        npm run compile:base
-        mv src/build/Release/lzham.node dist/build/Release/lzham.node
-        mv LICENSE.md dist/LICENSE.md
-    - name: Move compiled TFVPKTool to Harmony VPK Tool
-      run: |
-        cd ..
-        mv tfvpktool/dist main/tfvpktool
-        cd main
-    - name: NPM install
-      run: npm install
-    - name: Build
-      run: npm run build:linux
-    - uses: actions/upload-artifact@v3
-      with:
-        name: Harmony VPK Tool
-        path: builds/Harmony VPK Tool*.AppImage
+  # build_linux:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Setup node
+  #     uses: actions/setup-node@master
+  #   - name: Checkout Harmony VPK Tool
+  #     uses: actions/checkout@v3
+  #     with:
+  #       path: main
+  #   - name: Checkout TFVPKTool
+  #     uses: actions/checkout@v3
+  #     with:
+  #       repository: 'barnabwhy/TFVPKTool'
+  #       path: tfvpktool
+  #   - name: Compile TFVPKTool
+  #     run: |
+  #       cd tfvpktool
+  #       npm install
+  #       npm run compile:base
+  #       mv src/build/Release/lzham.node dist/build/Release/lzham.node
+  #       mv LICENSE.md dist/LICENSE.md
+  #   - name: Move compiled TFVPKTool to Harmony VPK Tool
+  #     run: |
+  #       cd ..
+  #       mv tfvpktool/dist main/tfvpktool
+  #       cd main
+  #   - name: NPM install
+  #     run: npm install
+  #   - name: Build
+  #     run: npm run build:linux
+  #   - uses: actions/upload-artifact@v3
+  #     with:
+  #       name: Harmony VPK Tool
+  #       path: builds/Harmony VPK Tool*.AppImage
