@@ -31,7 +31,7 @@ jobs:
         path: tfvpktool
     - name: Compile TFVPKTool
       run: |
-        move r5sdk/vproj/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
+        move r5sdk/r5dev/vproj/lib/Release/liblzham_x64.lib tfvpktool/src/lzham/lib/liblzham_x64.lib
         cd tfvpktool
         npm install
         npm run compile:base
