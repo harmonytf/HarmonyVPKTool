@@ -23,7 +23,6 @@ jobs:
       run: | 
         cd r5sdk
         msbuild ./r5dev/vproj/liblzham.vcxproj /p:Configuration=Release
-        ls ./lib/release
         cd ..
     - name: Checkout TFVPKTool
       uses: actions/checkout@v3
