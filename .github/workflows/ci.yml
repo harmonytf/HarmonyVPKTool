@@ -108,7 +108,7 @@ jobs:
         sed -i 's/c++20/c++2a/g' src/binding.gyp
         npm install
         npm run compile:base
-        mkdir dist/build/Release
+        mkdir -p dist/build/Release
         mv src/build/Release/lzham.node dist/build/Release/lzham.node
         mv LICENSE.md dist/LICENSE.md
 
