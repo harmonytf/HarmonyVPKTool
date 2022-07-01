@@ -16,7 +16,8 @@ jobs:
       with:
         repository: 'Mauler125/r5sdk'
         path: r5sdk
-    - uses: ilammy/msvc-dev-cmd@v1.4.1
+    - name: Configure Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1.4.1
       with:
         arch: amd64
     - name: Compile lzham
@@ -37,7 +38,6 @@ jobs:
         npm install
         npm run compile:base
         mkdir dist/build/Release
-        del dist/build/Release/lzham.node 2>null
         move src/build/Release/lzham.node dist/build/Release/lzham.node
         move LICENSE.md dist/LICENSE.md
     - name: Move compiled TFVPKTool to Harmony VPK Tool
