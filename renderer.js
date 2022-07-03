@@ -31,14 +31,14 @@ let isDialogOpen = false;
 
 async function selectVPK() {
     if(isDialogOpen) return;
-
-    isVpkOpen = false;
     isDialogOpen = true;
     vpkPath = await window.api.openVPK();
     isDialogOpen = false;
 
     if(!vpkPath)
         return //document.querySelector("#dirVPKName").innerText = "VPK open cancelled";
+        
+    isVpkOpen = false;
 
     let isDir = vpkPath.endsWith("_dir.vpk");
 
