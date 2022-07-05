@@ -70,7 +70,7 @@ async function selectVPK() {
     fileTree.totalCompressed = Object.values(vpk.tree.files).reduce((p, c) => { return p + c.fileParts.reduce((a, b) => (a + b.entryLength), 0) }, 0);
     fileTree.totalUncompressed = Object.values(vpk.tree.files).reduce((p, c) => { return p + c.fileParts.reduce((a, b) => (a + b.entryLengthUncompressed), 0) }, 0);
 
-    closeDetails();
+    showDirDetails(fileTree);
     renderTree(fileTree);
 
     isVpkOpen = true;
@@ -170,10 +170,6 @@ function renderDirs(dirs, parentEl) {
             })
         }
     })
-}
-
-function closeDetails() {
-    document.querySelector("#details").classList.remove("visible");
 }
 
 function showDirDetails(d) {
