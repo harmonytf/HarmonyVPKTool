@@ -222,7 +222,7 @@ function bytesToSize(bytes) {
 }
 
 async function unpackDir(d) {
-    if(!isVpkOpen)
+    if(!isVpkOpen || isDialogOpen)
         return;
         
     console.log("Unpack:", d);
@@ -231,7 +231,7 @@ async function unpackDir(d) {
     unpack(files);
 }
 async function unpackFile(f) {
-    if(!isVpkOpen)
+    if(!isVpkOpen || isDialogOpen)
         return;
 
     console.log("Unpack:", f);
@@ -247,7 +247,9 @@ async function unpack(files) {
     document.querySelector("#unpackPrompt > .currentPath").innerText = "";
     document.querySelector("#unpackPrompt > .progress").innerText =  "0/" + files.length;
 
+    isDialogOpen = true;
     let isUnpacking = await window.api.copyFiles(vpkPath, files)
+    isDialogOpen = false;
 
     if(isUnpacking) {
         unpackStartTime = Date.now();
