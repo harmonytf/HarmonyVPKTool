@@ -445,6 +445,14 @@ input[type=number] {
     display: block;
 }
 
+#previewPrompt > #miscPreview {
+    margin: 16px 0px;
+}
+
+#previewPrompt.loading > #miscPreview, #previewPrompt.unsupported > #miscPreview, #previewPrompt.text > #miscPreview {
+    display: none;
+}
+
 #previewPrompt > .previewPromptButton {
     float: right;
     padding: 8px 24px;

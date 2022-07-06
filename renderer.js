@@ -308,7 +308,6 @@ function closeSettingsAndSave() {
 }
 
 const TEXT_FILE_EXTENSIONS = ["txt", "cfg", "nut", "gnut", "res", "menu", "vmt", "lst"];
-const PREVIEWABLE_NON_TEXT_EXTENSIONS = [];
 
 let previewFileOutPath;
 async function previewFile(file) {
@@ -334,11 +333,14 @@ async function previewFile(file) {
         document.querySelector("#previewPrompt > #textPreview").scrollTop = 0;
         document.querySelector("#previewPrompt > #textPreview").innerText = res.buf;
     } else {
-        let isSupported = PREVIEWABLE_NON_TEXT_EXTENSIONS.includes(file.name.split(".").pop().toLowerCase());
-        if(isSupported) {
-
-        } else {
-            document.querySelector("#previewPrompt").classList.add("unsupported");
+        let fileType = file.name.split(".").pop().toLowerCase();
+        switch (fileType) {
+            case "wav":
+                document.querySelector("#previewPrompt > #miscPreview").innerHTML = `<audio controls="controls" style="width: 420px;" src="${res.outPath}" type="audio/wav">`;
+                document.querySelector("#previewPrompt > #miscPreview > audio").volume = 0.5;
+                break;
+            default:
+                document.querySelector("#previewPrompt").classList.add("unsupported");
         }
     }
 }

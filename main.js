@@ -84,7 +84,7 @@ async function handleCopyCancel(event) {
 async function handlePreviewFile(event, vpkPath, filePath, isText) {
   let vpk = new VPK(vpkPath);
   vpk.readTree();
-  let buf = await vpk.readFile(filePath);
+  let buf = await vpk.readFile(filePath, true);
   vpk.close();
 
   let outPath = path.join(app.getPath("temp"), "vpkpreview", filePath).replaceAll("\\", "/");
