@@ -307,7 +307,7 @@ function closeSettingsAndSave() {
     updateSettings();
 }
 
-const TEXT_FILE_EXTENSIONS = ["txt", "cfg", "nut", "gnut", "res", "menu", "vmt", "lst"];
+const TEXT_FILE_EXTENSIONS = ["txt", "cfg", "nut", "gnut", "res", "menu", "vmt", "lst", "set", "ent"];
 
 let previewFileOutPath;
 async function previewFile(file) {
