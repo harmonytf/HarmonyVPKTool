@@ -74,6 +74,9 @@ async function selectVPK() {
     renderTree(fileTree);
 
     isVpkOpen = true;
+
+    document.querySelector("#vpkExistingPaths").innerHTML = Object.keys(vpk.tree.files).map(p => `<option value="${p}"></option>`).join("")
+    document.querySelector("#patchVPKButton").classList.remove("hidden");
 }
 
 function renderTree(fileTree) {
@@ -305,3 +308,74 @@ window.api.getCustomCSS().then(cssString => {
     styleNode.textContent = cssString;
     document.head.appendChild(styleNode);
 })
+
+let vpkPatchFiles = []
+function openVPKPatchPrompt() {
+    vpkPatchFiles = [];
+    document.querySelector("#patchVPKPathInput").value = "";
+    renderPatchReplacedFiles();
+
+    document.querySelector("#patchVPKOverlay").classList.add("visible");
+}
+function closeVPKPatchPrompt() {
+    document.querySelector("#patchVPKOverlay").classList.remove("visible");
+}
+
+const escapeHtml = (unsafe) => {
+    return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
+
+async function addPatchReplacedFile() {
+    let outPath = document.querySelector("#patchVPKPathInput").value;
+    if(outPath == "")
+        return;
+
+    isDialogOpen = true;
+    let inPath = await window.api.selectPatchFile();
+    isDialogOpen = false;
+    if(!inPath)
+        return;
+
+    vpkPatchFiles = vpkPatchFiles.filter(f => f.outPath != outPath)
+
+    vpkPatchFiles.push({
+        inPath,
+        outPath
+    })
+    
+    renderPatchReplacedFiles();
+}
+async function removePatchReplacedFile(el) {
+    let outPath = el.parentElement.querySelector(".outPath").innerText
+    vpkPatchFiles = vpkPatchFiles.filter(f => f.outPath != outPath)
+
+    renderPatchReplacedFiles();
+}
+
+function renderPatchReplacedFiles() {
+    document.querySelector("#vpkExistingPaths").innerHTML = Object.keys(vpk.tree.files).filter(p => vpkPatchFiles.findIndex(f => f.outPath == p) == -1).map(p => `<option value="${p}"></option>`).join("")
+
+    document.querySelector("#vpkPatchList").innerHTML = vpkPatchFiles.map(f => `<div class="vpkPatch"><span class="inPath" title="${escapeHtml(f.inPath)}">${escapeHtml(f.inPath)}</span><img class="arrow" src="img/arrow_right.svg" /><span class="outPath" title="${escapeHtml(f.outPath)}">${escapeHtml(f.outPath)}</span><img onclick="removePatchReplacedFile(this)" class="remove" src="img/close.svg" /></div>`).join("")
+    if(vpkPatchFiles.length == 0) {
+        document.querySelector("#vpkPatchList").innerHTML = "<span>No files replaced</span>"
+    }
+}
+
+async function patchVPK() {
+    closeVPKPatchPrompt();
+
+    document.querySelector("#patchVPKProgressOverlay .title").innerText = "Patching VPK...";
+    document.querySelector("#patchVPKProgressOverlay .progressBar").classList.add("indeterminate");
+    document.querySelector("#patchVPKProgressOverlay .progressBar > .progressDone").style.width = "";
+    document.querySelector("#patchVPKProgressOverlay .patchVPKClose").classList.add("hidden");
+
+    document.querySelector("#patchVPKProgressOverlay").classList.add("visible");
+    await window.api.startPatch(vpkPath, vpkPatchFiles);
+    document.querySelector("#patchVPKProgressOverlay .title").innerText = "Patching complete";
+    document.querySelector("#patchVPKProgressOverlay .progressBar").classList.remove("indeterminate");
+    document.querySelector("#patchVPKProgressOverlay .progressBar > .progressDone").style.width = "100%";
+    document.querySelector("#patchVPKProgressOverlay .patchVPKClose").classList.remove("hidden");
+}
+function closeVPKPatch() {
+    document.querySelector("#patchVPKProgressOverlay").classList.remove("visible");
+}
