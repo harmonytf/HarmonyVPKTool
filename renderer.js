@@ -70,7 +70,7 @@ async function selectVPK() {
     fileTree.totalCompressed = Object.values(vpk.tree.files).reduce((p, c) => { return p + c.fileParts.reduce((a, b) => (a + b.entryLength), 0) }, 0);
     fileTree.totalUncompressed = Object.values(vpk.tree.files).reduce((p, c) => { return p + c.fileParts.reduce((a, b) => (a + b.entryLengthUncompressed), 0) }, 0);
 
-    closeDetails();
+    showDirDetails(fileTree);
     renderTree(fileTree);
 
     isVpkOpen = true;
@@ -172,10 +172,6 @@ function renderDirs(dirs, parentEl) {
     })
 }
 
-function closeDetails() {
-    document.querySelector("#details").classList.remove("visible");
-}
-
 function showDirDetails(d) {
     console.log("Show details:", d);
     document.querySelector("#details").classList.add("visible");
@@ -226,7 +222,7 @@ function bytesToSize(bytes) {
 }
 
 async function unpackDir(d) {
-    if(!isVpkOpen)
+    if(!isVpkOpen || isDialogOpen)
         return;
         
     console.log("Unpack:", d);
@@ -235,7 +231,7 @@ async function unpackDir(d) {
     unpack(files);
 }
 async function unpackFile(f) {
-    if(!isVpkOpen)
+    if(!isVpkOpen || isDialogOpen)
         return;
 
     console.log("Unpack:", f);
@@ -251,7 +247,9 @@ async function unpack(files) {
     document.querySelector("#unpackPrompt > .currentPath").innerText = "";
     document.querySelector("#unpackPrompt > .progress").innerText =  "0/" + files.length;
 
+    isDialogOpen = true;
     let isUnpacking = await window.api.copyFiles(vpkPath, files)
+    isDialogOpen = false;
 
     if(isUnpacking) {
         unpackStartTime = Date.now();
