@@ -222,11 +222,10 @@ body {
 #detailsCloseButton:hover:not(:active) {
     background: rgba(0,0,0,0.2);
 }
-#detailsUnpackButton {
+#detailsUnpackButton, #detailsPreviewButton {
     vertical-align: middle;
-    position: absolute;
-    top: 16px;
-    right: 16px;
+    float: right;
+    margin-left: 16px;
     padding: 8px;
     border: none;
     cursor: pointer;
@@ -234,8 +233,11 @@ body {
     border-radius: 3px;
     font-size: 14px;
 }
-#detailsUnpackButton:hover:not(:active) {
+#detailsUnpackButton:hover:not(:active), #detailsPreviewButton:hover:not(:active) {
     background: rgba(0,0,0,0.2);
+}
+#detailsPreviewButton.hidden {
+    display: none;
 }
 
 #unpackOverlay {
@@ -378,5 +380,89 @@ input[type=number] {
     border-radius: 3px;
 }
 #settingsPrompt > .settingsPromptButton:hover:not(:active) {
+    background: rgba(0,0,0,0.15);
+}
+
+#previewOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.25);
+    z-index: 10000;
+    display: none;
+}
+#previewOverlay.visible {
+    display: block;
+}
+#previewPrompt {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.5);
+    padding: 32px;
+    min-width: 540px;
+    max-width: 80%;
+}
+#previewPrompt > span {
+    font-size: 12px;
+}
+#previewPrompt > .title {
+    font-size: 20px;
+    font-weight: bold;
+}
+#previewPrompt > .filePath {
+    font-size: 11px;
+}
+
+#previewPrompt > #textPreview {
+    font-size: 12px;
+    padding: 16px;
+    border-radius: 3px;
+    background-color: #e5e5e5;
+    min-height: 320px;
+    max-height: calc(80vh - 176px);
+    overflow: auto;
+
+    display: none;
+}
+#previewPrompt.text > #textPreview {
+    display: block;
+}
+#previewPrompt > #loadingPreview, #previewPrompt > #unsupportedPreview {
+    display: none;
+    margin: 16px 0px;
+    font-size: 14px;
+    font-weight: bold;
+}
+#previewPrompt.loading > #loadingPreview {
+    display: block;
+}
+#previewPrompt.unsupported > #unsupportedPreview {
+    display: block;
+}
+
+#previewPrompt > #miscPreview {
+    margin: 16px 0px;
+}
+
+#previewPrompt.loading > #miscPreview, #previewPrompt.unsupported > #miscPreview, #previewPrompt.text > #miscPreview {
+    display: none;
+}
+
+#previewPrompt > .previewPromptButton {
+    float: right;
+    padding: 8px 24px;
+    margin: 16px 0px 0px 0px;
+    border: none;
+    cursor: pointer;
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+    margin-left: 16px;
+}
+#previewPrompt > .previewPromptButton:hover:not(:active) {
     background: rgba(0,0,0,0.15);
 }
