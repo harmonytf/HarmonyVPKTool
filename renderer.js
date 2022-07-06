@@ -32,12 +32,14 @@ let isDialogOpen = false;
 async function selectVPK() {
     if(isDialogOpen) return;
     isDialogOpen = true;
-    vpkPath = await window.api.openVPK();
+    tmpVpkPath = await window.api.openVPK();
     isDialogOpen = false;
 
-    if(!vpkPath)
+    if(!tmpVpkPath)
         return //document.querySelector("#dirVPKName").innerText = "VPK open cancelled";
         
+    vpkPath = tmpVpkPath;
+
     isVpkOpen = false;
 
     let isDir = vpkPath.endsWith("_dir.vpk");
@@ -176,6 +178,7 @@ function showDirDetails(d) {
     console.log("Show details:", d);
     document.querySelector("#details").classList.add("visible");
     document.querySelector("#details > .title").innerText = "Directory Details";
+    document.querySelector("#detailsPreviewButton").classList.add("hidden");
 
     document.querySelector("#details > .path > span").innerText = d.path || "/";
     document.querySelector("#details > .fileType").classList.add("hidden");
@@ -195,6 +198,9 @@ function showFileDetails(f) {
     console.log("Show details:", f);
     document.querySelector("#details").classList.add("visible");
     document.querySelector("#details > .title").innerText = "File Details";
+    document.querySelector("#detailsPreviewButton").classList.remove("hidden");
+    document.querySelector("#detailsPreviewButton").removeEventListeners("click");
+    document.querySelector("#detailsPreviewButton").addEventListener("click", () => { previewFile(f) });
     
     document.querySelector("#details > .path > span").innerText = f.path;
     document.querySelector("#details > .fileType > span").innerText = f.name.split(".").pop().toUpperCase();
@@ -298,6 +304,48 @@ function openSettingsPrompt() {
 function closeSettingsAndSave() {
     document.querySelector("#settingsOverlay").classList.remove("visible");
     updateSettings();
+}
+
+const TEXT_FILE_EXTENSIONS = ["txt", "cfg", "nut", "gnut", "res", "menu", "vmt", "lst"];
+const PREVIEWABLE_NON_TEXT_EXTENSIONS = [];
+
+let previewFileOutPath;
+async function previewFile(file) {
+    console.log("Preview:", file);
+
+    document.querySelector("#previewOverlay").classList.add("visible");
+    document.querySelector("#previewPrompt").classList.remove("text");
+    document.querySelector("#previewPrompt").classList.remove("unsupported");
+
+    document.querySelector("#previewPrompt").classList.add("loading");
+
+    document.querySelector("#previewPrompt > .filePath").innerText = file.path;
+
+    let isText = TEXT_FILE_EXTENSIONS.includes(file.name.split(".").pop().toLowerCase());
+    let res = await window.api.previewFile(vpkPath, file.path, isText);
+    previewFileOutPath = res.outPath;
+
+    document.querySelector("#previewPrompt").classList.remove("loading");
+
+    if(isText) {
+        document.querySelector("#previewPrompt").classList.add("text");
+        
+        document.querySelector("#previewPrompt > #textPreview").scrollTop = 0;
+        document.querySelector("#previewPrompt > #textPreview").innerText = res.buf;
+    } else {
+        let isSupported = PREVIEWABLE_NON_TEXT_EXTENSIONS.includes(file.name.split(".").pop().toLowerCase());
+        if(isSupported) {
+
+        } else {
+            document.querySelector("#previewPrompt").classList.add("unsupported");
+        }
+    }
+}
+async function closePreview() {
+    document.querySelector("#previewOverlay").classList.remove("visible");
+}
+async function browsePreviewFile() {
+    window.api.browsePreviewFile(previewFileOutPath);
 }
 
 window.api.getCustomCSS().then(cssString => {

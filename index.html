@@ -13,6 +13,7 @@
     </div>
     <div id="details">
         <button id="detailsUnpackButton">Unpack</button>
+        <button id="detailsPreviewButton" class="hidden">Preview</button>
         <h2 class="title">Details</h2>
         <p class="path">Path:<span style="font-size: 12px;"></span></p>
         <p class="fileType">File Type: <span></span></p>
@@ -65,6 +66,20 @@
 
 
             <button class="settingsPromptButton" onclick="closeSettingsAndSave()">OK</button>
+        </div>
+    </div>
+    
+    <div id="previewOverlay">
+        <div id="previewPrompt">
+            <span class="title">File Preview</span>
+            <br>
+            <span class="filePath">directory/filename.extension</span>
+            <br>
+            <span id="loadingPreview">Loading preview</span>
+            <span id="unsupportedPreview">File type unsupported</span>
+            <pre id="textPreview"></pre>
+            <button class="previewPromptButton" onclick="closePreview()">Close</button>
+            <button class="previewPromptButton" onclick="browsePreviewFile()">Browse</button>
         </div>
     </div>
 
