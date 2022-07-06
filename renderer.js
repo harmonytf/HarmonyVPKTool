@@ -164,6 +164,7 @@ function renderDirs(dirs, parentEl) {
                 f_spanNode.addEventListener( "contextmenu", function(e) {
                     showContextMenu(`${f.name.split(".").pop().toUpperCase()} file`, [
                         { text: "Show details", cb: () => { showFileDetails(f); }, disabled: false },
+                        { text: "Preview file", cb: () => { previewFile(f); }, disabled: false },
                         { text: "Unpack file", cb: () => { unpackFile(f); }, disabled: false }
                     ], { x: e.x, y: e.y })
                 });
