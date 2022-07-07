@@ -225,10 +225,10 @@ function showFileDetails(f) {
 
 
 function bytesToSize(bytes) {
-    var sizes = [' bytes', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes == 0) return '0 bytes';
-    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-    return (bytes / Math.pow(1024, i)).toFixed(2) + sizes[i];
+    let sizes = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 bytes';
+    let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 2 : 0) + ' ' + sizes[i];
 }
 
 async function unpackDir(d) {
