@@ -84,6 +84,34 @@
         </div>
     </div>
 
+    <button id="patchVPKButton" class="hidden" onclick="openVPKPatchPrompt()">Patch VPK</button>
+    <div id="patchVPKOverlay">
+        <div id="patchVPKPrompt">
+            <span class="title">Patch VPK</span>
+            <br><br>
+            <b>Replaced files:</b>
+            <div id="vpkPatchList">
+                <span>No files replaced</span>
+            </div>
+            <br>
+            <datalist id="vpkExistingPaths"></datalist>
+            <input id="patchVPKPathInput" list="vpkExistingPaths" placeholder="File path in VPK (e.g. models/error.mdl)" type="text">
+            <button class="patchVPKSelectFile" onclick="addPatchReplacedFile()">Select File</button>
+            <br><br>
+            <button class="patchVPKCancel" onclick="closeVPKPatchPrompt()">Cancel</button>
+            <button class="patchVPKOK" onclick="patchVPK()">Patch</button>
+        </div>
+    </div>
+    
+    <div id="patchVPKProgressOverlay">
+        <div id="patchVPKProgressPrompt">
+            <span class="title">Patching VPK...</span>
+            <div class="progressBar indeterminate"><div class="progressDone"></div></div>
+            <br>
+            <button class="patchVPKClose hidden" onclick="closeVPKPatch()">Close</button>
+        </div>
+    </div>
+
     <script src="script/removeEventListeners.js"></script>
     <script src="renderer.js"></script>
   </body>

@@ -97,7 +97,7 @@ body {
     padding: 6px 16px;
 }
 #context > .ctxActions > .ctxAction:not(.disabled):hover {
-    background-color: rgba(0,0,0,0.15);
+    background-color: #ccc;
 }
 
 #context.visible {
@@ -108,7 +108,7 @@ body {
     width: calc(100% - var(--details-width));
     height: calc(100% - 48px);
     line-height: 1.25;
-    padding: 12px 8px;
+    padding: 12px 8px 60px 8px;
     background-color: white;
     position: fixed;
     top: 48px;
@@ -183,7 +183,7 @@ body {
     left: 0;
     z-index: 100;
 }
-#openVPKButton, #openSettingsButton {
+#openVPKButton, #openSettingsButton, #patchVPKButton {
     vertical-align: middle;
     float: right;
     padding: 8px;
@@ -192,11 +192,11 @@ body {
     transform: translateY(-50%);
     border: none;
     cursor: pointer;
-    background: rgba(0,0,0,0.1);
+    background: #e5e5e5;
     border-radius: 3px;
 }
-#openVPKButton:hover:not(:active), #openSettingsButton:hover:not(:active) {
-    background: rgba(0,0,0,0.2);
+#openVPKButton:hover:not(:active), #openSettingsButton:hover:not(:active), #patchVPKButton:hover:not(:active) {
+    background: #ccc;
 }
 #openVPKButton {
     margin-right: -16px;
@@ -212,7 +212,7 @@ body {
     margin: 0;
     border: none;
     cursor: pointer;
-    background: rgba(0,0,0,0.1);
+    background: #e5e5e5;
     border-radius: 16px;
 }
 #detailsCloseButton > img {
@@ -220,7 +220,7 @@ body {
     height: auto;
 }
 #detailsCloseButton:hover:not(:active) {
-    background: rgba(0,0,0,0.2);
+    background: #ccc;
 }
 #detailsUnpackButton, #detailsPreviewButton {
     vertical-align: middle;
@@ -229,12 +229,12 @@ body {
     padding: 8px;
     border: none;
     cursor: pointer;
-    background: rgba(0,0,0,0.1);
+    background: #e5e5e5;
     border-radius: 3px;
     font-size: 14px;
 }
 #detailsUnpackButton:hover:not(:active), #detailsPreviewButton:hover:not(:active) {
-    background: rgba(0,0,0,0.2);
+    background: #ccc;
 }
 #detailsPreviewButton.hidden {
     display: none;
@@ -269,7 +269,7 @@ body {
     font-size: 20px;
     font-weight: bold;
 }
-#unpackPrompt > .progressBar {
+.progressBar {
     width: 420px;
     height: 20px;
     margin: 8px 0px;
@@ -277,12 +277,33 @@ body {
     border-radius: 3px;
     background-color: #efefef;
 }
-#unpackPrompt > .progressBar > .progressDone {
+.progressBar > .progressDone {
     background-color: #7CE577;
     width: 0%;
     height: 100%;
     z-index: -1;
     transition: width 0.05s;
+}
+@keyframes indeterminate-progress {
+    0% {
+        width: 0%;
+        margin-left: 0%;
+    }
+    20% {
+        width: 25%;
+        margin-left: 0%;
+    }
+    80% {
+        width: 25%;
+        margin-left: 75%;
+    }
+    100% {
+        width: 0%;
+        margin-left: 100%;
+    }
+}
+.progressBar.indeterminate > .progressDone {
+    animation: indeterminate-progress linear 2s infinite;
 }
 #unpackPrompt > .currentPath {
     display: inline-block;
@@ -301,12 +322,12 @@ body {
     margin: 16px 0px 0px 0px;
     border: none;
     cursor: pointer;
-    background: rgba(0,0,0,0.1);
+    background: #e5e5e5;
     border-radius: 3px;
     display: none;
 }
 #unpackPrompt > .unpackPromptButton:hover:not(:active) {
-    background: rgba(0,0,0,0.15);
+    background: #ccc;
 }
 #unpackOverlay.done > #unpackPrompt {
     padding-bottom: 24px;
@@ -364,7 +385,7 @@ body {
 input[type=number] {
     width: 64px;
     border: none;
-    background-color: rgba(0,0,0,0.1);
+    background-color: #e5e5e5;
     padding: 8px;
     outline: none;
     border-radius: 3px;
@@ -376,14 +397,26 @@ input[type=number] {
     margin: 16px 0px 0px 0px;
     border: none;
     cursor: pointer;
-    background: rgba(0,0,0,0.1);
+    background: #e5e5e5;
     border-radius: 3px;
 }
 #settingsPrompt > .settingsPromptButton:hover:not(:active) {
-    background: rgba(0,0,0,0.15);
+    background: #ccc;
 }
 
-#previewOverlay {
+#patchVPKButton {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    transform: none;
+    margin: 0;
+    z-index: 100;
+}
+#patchVPKButton.hidden {
+    display: none;
+}
+
+#patchVPKOverlay, #previewOverlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -393,9 +426,25 @@ input[type=number] {
     z-index: 10000;
     display: none;
 }
+#patchVPKOverlay.visible, #previewOverlay.visible {
+    display: block;
+}
+
 #previewOverlay.visible {
     display: block;
 }
+
+#patchVPKPrompt {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.5);
+    padding: 32px;
+    width: 615px;
+}
+
 #previewPrompt {
     position: absolute;
     top: 50%;
@@ -406,6 +455,131 @@ input[type=number] {
     padding: 32px;
     min-width: 540px;
     max-width: 80%;
+}
+#patchVPKPrompt > span {
+    font-size: 12px;
+}
+#patchVPKPrompt > .title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#patchVPKPrompt > button {
+    float: right;
+    padding: 8px 24px;
+    border: none;
+    cursor: pointer;
+    background: #e5e5e5;
+    border-radius: 3px;
+    margin-left: 16px;
+}
+#patchVPKPrompt > button:hover:not(:active) {
+    background: #ccc;
+}
+.patchVPKSelectFile {
+    float: none !important;
+}
+
+
+input[type=text] {
+    width: 320px;
+    border: none;
+    background-color: #e5e5e5;
+    padding: 8px;
+    outline: none;
+    border-radius: 3px;
+}
+
+#patchVPKPrompt > input {
+    width: 420px;
+}
+
+#vpkPatchList > .vpkPatch {
+    font-size: 24px;
+    padding: 0px 8px 2px 8px;
+    border-radius: 3px;
+    background-color: #f0f0f0;
+}
+#vpkPatchList > .vpkPatch:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+#vpkPatchList {
+    margin-top: 8px;
+        max-height: 280px;
+        overflow-y: auto;
+        padding: 8px;
+}
+#vpkPatchList > .vpkPatch > span {
+    font-size: 11px;
+    vertical-align: middle;
+    display: inline-block;
+    width: calc(50% - 42px);
+    margin-right: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#vpkPatchList > .vpkPatch > .arrow {
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 16px;
+}
+#vpkPatchList > .vpkPatch > .remove {
+    height: 16px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+#vpkPatchList > .vpkPatch > .remove:hover {
+    opacity: 0.7;
+}
+#vpkPatchList > .vpkPatch > .remove:active {
+    opacity: 0.6;
+}
+
+#patchVPKProgressOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.25);
+    z-index: 10000;
+    display: none;
+}
+#patchVPKProgressOverlay.visible {
+    display: block;
+}
+#patchVPKProgressPrompt {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.5);
+    padding: 32px;
+}
+#patchVPKProgressPrompt > span {
+    font-size: 12px;
+}
+#patchVPKProgressPrompt > .title {
+    font-size: 20px;
+    font-weight: bold;
+}
+#patchVPKProgressPrompt > button {
+    float: right;
+    padding: 8px 24px;
+    border: none;
+    cursor: pointer;
+    background: #e5e5e5;
+    border-radius: 3px;
+    margin-left: 16px;
+}
+#patchVPKProgressPrompt > button:hover:not(:active) {
+    background: #ccc;
+}
+#patchVPKProgressPrompt > button.hidden {
+    display: none;
 }
 #previewPrompt > span {
     font-size: 12px;
@@ -459,10 +633,10 @@ input[type=number] {
     margin: 16px 0px 0px 0px;
     border: none;
     cursor: pointer;
-    background: rgba(0,0,0,0.1);
+    background: #e5e5e5;
     border-radius: 3px;
     margin-left: 16px;
 }
 #previewPrompt > .previewPromptButton:hover:not(:active) {
-    background: rgba(0,0,0,0.15);
+    background: #ccc;
 }

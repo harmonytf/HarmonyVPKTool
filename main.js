@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const fs = require("fs");
 const path = require("path");
-const { VPK, VPKCopy } = require("./tfvpktool/")
+const { VPK, VPKCopy, VPatcher } = require("./tfvpktool/")
 
 const os = require('os');
 const storage = require('electron-json-storage');
@@ -81,6 +81,50 @@ async function handleCopyCancel(event) {
   copierCloseFunc();
 }
 
+async function handleSelectPatchFile(event) {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: "Select Replacement File",
+    properties: ['openFile']
+  })
+  if (canceled) {
+    return
+  } else {
+    return filePaths[0]
+  }
+}
+
+async function handleStartPatch(event, vpkPath, files) {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: "Select Output Folder",
+    properties: ['openDirectory']
+  })
+  if (canceled)
+    return false
+  
+  let outDir = filePaths[0].replaceAll("\\", "/") + "/";
+
+  let patcher = new VPatcher(vpkPath);
+  
+  if(outDir == path.dirname(vpkPath)+"/") {
+    if(fs.existsSync(vpkPath+".bak")) {
+      let bakIdx = 1;
+      while(fs.existsSync(vpkPath+".bak"+bakIdx))
+        bakIdx++;
+        fs.renameSync(vpkPath, vpkPath+".bak"+bakIdx); 
+    } else {
+      fs.renameSync(vpkPath, vpkPath+".bak"); 
+    }
+  }
+
+  for(let file of files) {
+    await patcher.addFile(file.inPath, file.outPath);
+  }
+
+  await patcher.writeVPK(outDir + vpkPath.split("/").pop());
+
+  return true;
+}
+
 async function handlePreviewFile(event, vpkPath, filePath, isText) {
   let vpk = new VPK(vpkPath);
   vpk.readTree();
@@ -151,6 +195,8 @@ app.on("ready", () => {
   ipcMain.handle('readVPKTree', handleReadVPKTree)
   ipcMain.handle('copyFiles', handleCopyFiles)
   ipcMain.handle('copyCancel', handleCopyCancel)
+  ipcMain.handle('selectPatchFile', handleSelectPatchFile)
+  ipcMain.handle('startPatch', handleStartPatch)
   ipcMain.handle('previewFile', handlePreviewFile)
   ipcMain.handle('browsePreviewFile', handleBrowsePreviewFile)
   ipcMain.handle('getSettings', handleGetSettings)
