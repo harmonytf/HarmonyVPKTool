@@ -1,10 +1,17 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const fs = require("fs");
 const path = require("path");
 const { VPK, VPKCopy, VPatcher } = require("./tfvpktool/")
 
 const os = require('os');
 const storage = require('electron-json-storage');
+
+
+function getTextEncoding(buf) {
+  var d = buf.subarray(0, 5);
+
+  return d[0] === 0xfe && d[1] === 0xff ? "utf16be" : d[0] === 0xff && d[1] === 0xfe ? "utf16le" : "utf8";
+}
 
 // Initialise + read custom.css
 const customCSSPath = app.getPath('userData') + "\\custom.css";
@@ -118,8 +125,27 @@ async function handleStartPatch(event, vpkPath, files) {
   return true;
 }
 
-async function handleCancelPatch(event) {
+async function handlePreviewFile(event, vpkPath, filePath, isText) {
+  let vpk = new VPK(vpkPath);
+  vpk.readTree();
+  let buf = await vpk.readFile(filePath, true);
+  vpk.close();
 
+  let outPath = path.join(app.getPath("temp"), "vpkpreview", filePath).replaceAll("\\", "/");
+  await fs.promises.mkdir(outPath.substring(0, outPath.lastIndexOf("/")+1), { recursive: true });
+
+  if(isText) {
+    await fs.promises.writeFile(outPath, buf, getTextEncoding(buf));
+    return { buf: buf.toString(getTextEncoding(buf)), outPath };
+  } else {
+    await fs.promises.writeFile(outPath, buf);
+    return { buf, outPath };
+  }
+}
+
+async function handleBrowsePreviewFile(event, filePath) {
+  let tempPreviewPath = filePath.substring(0, filePath.lastIndexOf("/")+1);
+  shell.openPath(tempPreviewPath);
 }
 
 async function handleGetSettings(event) {
@@ -171,7 +197,8 @@ app.on("ready", () => {
   ipcMain.handle('copyCancel', handleCopyCancel)
   ipcMain.handle('selectPatchFile', handleSelectPatchFile)
   ipcMain.handle('startPatch', handleStartPatch)
-  ipcMain.handle('cancelPatch', handleCancelPatch)
+  ipcMain.handle('previewFile', handlePreviewFile)
+  ipcMain.handle('browsePreviewFile', handleBrowsePreviewFile)
   ipcMain.handle('getSettings', handleGetSettings)
   ipcMain.handle('updateSettings', handleUpdateSettings)
   ipcMain.handle('getCustomCSS', handleGetCustomCSS)

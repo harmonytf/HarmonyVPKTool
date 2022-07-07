@@ -9,7 +9,8 @@ contextBridge.exposeInMainWorld('api', {
     onCopyDone: (cb) => ipcRenderer.on("copyDone", cb),
     selectPatchFile: () => ipcRenderer.invoke('selectPatchFile'),
     startPatch: (vpkPath, files) => ipcRenderer.invoke('startPatch', vpkPath, files),
-    cancelPatch: () => ipcRenderer.invoke('cancelPatch'),
+    previewFile: (vpkPath, file, isText = false) => ipcRenderer.invoke("previewFile", vpkPath, file, isText),
+    browsePreviewFile: (filePath) => ipcRenderer.invoke("browsePreviewFile", filePath),
     getSettings: () => ipcRenderer.invoke("getSettings"),
     updateSettings: (settings) => ipcRenderer.invoke("updateSettings", settings),
     // Custom CSS
