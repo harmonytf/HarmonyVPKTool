@@ -52,8 +52,8 @@
         </div>
     </div>
 
-    <div id="settingsOverlay">
-        <div id="settingsPrompt">
+    <div id="settingsOverlay" onclick="closeSettingsAndSave()">
+        <div id="settingsPrompt" onclick="event.stopPropagation()">
             <span class="title">Settings</span>
             <div class="setting">
                 <label for="setting_threadCount">Unpacking thread count:</label>
@@ -69,8 +69,8 @@
         </div>
     </div>
     
-    <div id="previewOverlay">
-        <div id="previewPrompt">
+    <div id="previewOverlay" onclick="closePreview()">
+        <div id="previewPrompt" onclick="event.stopPropagation()">
             <span class="title">File Preview</span>
             <br>
             <span class="filePath">directory/filename.extension</span>
@@ -85,8 +85,8 @@
     </div>
 
     <button id="patchVPKButton" class="hidden" onclick="openVPKPatchPrompt()">Patch VPK</button>
-    <div id="patchVPKOverlay">
-        <div id="patchVPKPrompt">
+    <div id="patchVPKOverlay" onclick="closeVPKPatchPrompt()">
+        <div id="patchVPKPrompt" onclick="event.stopPropagation()">
             <span class="title">Patch VPK</span>
             <br><br>
             <b>Replaced files:</b>
@@ -95,8 +95,8 @@
             </div>
             <br>
             <datalist id="vpkExistingPaths"></datalist>
-            <input id="patchVPKPathInput" list="vpkExistingPaths" placeholder="File path in VPK (e.g. models/error.mdl)" type="text">
-            <button class="patchVPKSelectFile" onclick="addPatchReplacedFile()">Select File</button>
+            <input id="patchVPKPathInput" list="vpkExistingPaths" placeholder="File path in VPK (e.g. models/error.mdl)" type="text" oninput="updatePatchReplacedFileButton()">
+            <button class="patchVPKSelectFile" disabled="true" onclick="addPatchReplacedFile()">Select File</button>
             <br><br>
             <button class="patchVPKCancel" onclick="closeVPKPatchPrompt()">Cancel</button>
             <button class="patchVPKOK" onclick="patchVPK()">Patch</button>

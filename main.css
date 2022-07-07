@@ -473,7 +473,10 @@ input[type=number] {
     border-radius: 3px;
     margin-left: 16px;
 }
-#patchVPKPrompt > button:hover:not(:active) {
+#patchVPKPrompt > button:disabled {
+    cursor:not-allowed;
+}
+#patchVPKPrompt > button:hover:not(:active):not(:disabled) {
     background: #ccc;
 }
 .patchVPKSelectFile {

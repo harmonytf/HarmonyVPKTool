@@ -365,6 +365,7 @@ function openVPKPatchPrompt() {
     vpkPatchFiles = [];
     document.querySelector("#patchVPKPathInput").value = "";
     renderPatchReplacedFiles();
+    updatePatchReplacedFileButton();
 
     document.querySelector("#patchVPKOverlay").classList.add("visible");
 }
@@ -396,6 +397,16 @@ async function addPatchReplacedFile() {
     
     renderPatchReplacedFiles();
 }
+function updatePatchReplacedFileButton() {
+    if(document.querySelector("#patchVPKPathInput").value == "") {
+        document.querySelector("#patchVPKPrompt > .patchVPKSelectFile").disabled = true;
+        document.querySelector("#patchVPKPrompt > .patchVPKSelectFile").title = "Please enter a path first";
+    } else {
+        document.querySelector("#patchVPKPrompt > .patchVPKSelectFile").disabled = false;
+        document.querySelector("#patchVPKPrompt > .patchVPKSelectFile").title = "";
+    }
+}
+
 async function removePatchReplacedFile(el) {
     let outPath = el.parentElement.querySelector(".outPath").innerText
     vpkPatchFiles = vpkPatchFiles.filter(f => f.outPath != outPath)

@@ -96,6 +96,7 @@ async function handleSelectPatchFile(event) {
 async function handleStartPatch(event, vpkPath, files) {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     title: "Select Output Folder",
+    defaultPath: vpkPath.replaceAll("\\", "/").substring(0, vpkPath.lastIndexOf("/")+1),
     properties: ['openDirectory']
   })
   if (canceled)
