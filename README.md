@@ -24,4 +24,4 @@ You can also download the [latest release](https://github.com/harmonytf/HarmonyV
 ## Details:
 Uses [TFVPKTool](https://github.com/barnabwhy/TFVPKTool) to unpack files from VPKs.
 
-TFVPKTool version: [v0.2.0](https://github.com/barnabwhy/TFVPKTool/releases/tag/0.2.0)
+TFVPKTool version: [v0.3.0](https://github.com/barnabwhy/TFVPKTool/releases/tag/0.3.0)
