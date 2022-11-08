@@ -19,7 +19,7 @@ You can also download the [latest release](https://github.com/harmonytf/HarmonyV
 ## Building
 1. Build [TFVPKTool](https://github.com/barnabwhy/TFVPKTool) and place the contents of the `dist` directory in `tfvpktool` (Building TFVPKTool on linux is currently undocumented but is possible)
 2. Run `npm install`
-3. Run `npm run compile:windows` to build a portable .exe if you are on windows or `npm run compile:linux` to build an AppImage if you are on linux.
+3. Run `npm run build:windows` to build a portable .exe if you are on windows or `npm run build:linux` to build an AppImage if you are on linux.
 
 ## Details:
 Uses [TFVPKTool](https://github.com/barnabwhy/TFVPKTool) to unpack files from VPKs.
