@@ -1,6 +1,6 @@
 {
   "name": "harmony_vpk_tool",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "An electron-based app for unpacking Respawn VPK files.",
   "main": "main.js",
   "scripts": {
