@@ -1,5 +1,5 @@
 # Harmony VPK Tool
-An electron-based app for unpacking Respawn VPK files.
+A tauri-based app for unpacking VPK files.
 
 Super-fast and made with ♥
 
