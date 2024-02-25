@@ -2,11 +2,13 @@
 import { ref, watch } from 'vue';
 import { useStore } from '../stores/main';
 import { invoke } from '@tauri-apps/api/tauri';
+import { platform } from '@tauri-apps/api/os';
 import TreeFolder from './TreeFolder.vue';
 import { VPKDirEntry } from '../types';
 import { bytesToSize, getTextEncoding, isAudioFile, isTextFile } from '../util';
 
 const mainStore = useStore();
+const platformName = platform();
 
 let selectedPath = ref<string | null>(null);
 let selectedEntry = ref<VPKDirEntry | undefined>(undefined);
@@ -35,7 +37,7 @@ async function previewFile(path: string) {
     }
 
     showPreview.value = true;
-    previewURL.value = "https://preview.localhost/" + path;
+    previewURL.value = (await platformName == 'win32' ? "https://preview.localhost/" : "preview://localhost/") + path;
 
     if (isTextFile(previewPath.value)) {
         previewLoading.value = true;

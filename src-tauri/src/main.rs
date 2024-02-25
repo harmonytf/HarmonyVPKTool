@@ -278,6 +278,7 @@ fn preview_protocol(app: &AppHandle, req: &Request) -> Result<Response, Box<dyn 
                     .body(buf.unwrap())
             } else {
                 tauri::http::ResponseBuilder::new()
+                    .header("Access-Control-Allow-Origin", "*")
                     .status(404)
                     .body(Vec::new())
             }
@@ -296,11 +297,13 @@ fn preview_protocol(app: &AppHandle, req: &Request) -> Result<Response, Box<dyn 
                     .body(buf.unwrap())
             } else {
                 tauri::http::ResponseBuilder::new()
+                    .header("Access-Control-Allow-Origin", "*")
                     .status(404)
                     .body(Vec::new())
             }
         }
         _ => tauri::http::ResponseBuilder::new()
+            .header("Access-Control-Allow-Origin", "*")
             .status(404)
             .body(Vec::new()),
     }
