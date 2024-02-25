@@ -22,6 +22,6 @@ You can also download the [latest release](https://github.com/harmonytf/HarmonyV
 3. Run `npm run build:windows` to build a portable .exe if you are on windows or `npm run build:linux` to build an AppImage if you are on linux.
 
 ## Details:
-Uses [TFVPKTool](https://github.com/barnabwhy/TFVPKTool) to unpack files from VPKs.
+Uses [sourcepak](https://github.com/barnabwhy/sourcepak-rs) to unpack files from VPKs.
 
-TFVPKTool version: [v0.3.1](https://github.com/barnabwhy/TFVPKTool/releases/tag/0.3.1)
+sourcepak version: [v0.1.0](https://crates.io/crates/sourcepak/0.1.0)
