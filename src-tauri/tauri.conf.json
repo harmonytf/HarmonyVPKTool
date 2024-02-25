@@ -6,8 +6,8 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "harmony-vpk-tool",
-    "version": "0.0.0"
+    "productName": "Harmony VPK Tool",
+    "version": "../package.json"
   },
   "tauri": {
     "allowlist": {
@@ -43,7 +43,13 @@
         "icons/512x512.png",
         "icons/icon.icns",
         "icons/icon.ico"
-      ]
+      ],
+      "windows": {
+        "webviewInstallMode": {
+          "silent": true,
+          "type": "downloadBootstrapper"
+        }
+      }
     }
   }
 }
