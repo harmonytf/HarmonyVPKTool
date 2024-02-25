@@ -20,7 +20,7 @@ You can also download the [latest release](https://github.com/harmonytf/HarmonyV
 1. Run `yarn`
 3. Run `yarn tauri build` to build a portable executable and bundled installs for your OS
 
-To build only the executable, change `bundle` `active` to `false` in `src-tauri/tauri.conf.json`.
+To build only the executable, instead run `yarn tauri build -b none`.
 
 
 ## Details:
