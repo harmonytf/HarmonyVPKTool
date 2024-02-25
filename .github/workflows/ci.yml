@@ -37,4 +37,39 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: upload deb
+        if: matrix.platform == 'ubuntu-20.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HarmonyVPKTool-deb
+          path: HarmonyVPKTool/src-tauri/target/release/bundle/deb/*.deb
+
+      - name: upload appimage
+        if: matrix.platform == 'ubuntu-20.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HarmonyVPKTool-appimage
+          path: HarmonyVPKTool/src-tauri/target/release/bundle/appimage/*.AppImage
+
+      - name: upload exe
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HarmonyVPKTool-exe
+          path: HarmonyVPKTool/src-tauri/target/release/*.exe
+
+      - name: upload msi
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HarmonyVPKTool-msi
+          path: HarmonyVPKTool/src-tauri/target/release/bundle/msi/*.msi
+
+      - name: upload nsis
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HarmonyVPKTool-nsis
+          path: HarmonyVPKTool/src-tauri/target/release/bundle/nsis/*.exe
         
