@@ -22,7 +22,6 @@ You can also download the [latest release](https://github.com/harmonytf/HarmonyV
 
 To build only the executable, instead run `yarn tauri build -b none`.
 
-
 ## Details:
 Uses [sourcepak](https://github.com/barnabwhy/sourcepak-rs) to unpack files from VPKs.
 
