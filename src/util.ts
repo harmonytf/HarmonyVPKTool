@@ -13,8 +13,6 @@ export function isAudioFile(file: string) {
 }
 
 export function isTextFile(file: string) {
-    console.log(file.split('.').pop() || '');
-    console.log(TEXT_FILE_EXTENSIONS.includes(file.split('.').pop() || ''))
     return TEXT_FILE_EXTENSIONS.includes(file.split('.').pop() || '');
 }
 

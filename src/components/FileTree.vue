@@ -37,14 +37,22 @@ async function previewFile(path: string) {
     }
 
     showPreview.value = true;
-    previewURL.value = (await platformName == 'win32' ? "https://preview.localhost/" : "preview://localhost/") + path;
 
     if (isTextFile(previewPath.value)) {
         previewLoading.value = true;
-        let res = await fetch(previewURL.value)
-        let buf = new Uint8Array(await res.arrayBuffer());
+        const arr  = new Uint8Array(await invoke('read_file', { path }));
+        previewText.value = new TextDecoder(getTextEncoding(arr)).decode(arr);
         previewLoading.value = false;
-        previewText.value = new TextDecoder(getTextEncoding(buf)).decode(buf);
+    } else if (isAudioFile(previewPath.value)) {
+        if (await platformName === 'win32') {
+            previewURL.value = `https://preview.localhost/` + path;
+        } else {
+            previewLoading.value = true;
+            const arr  = new Uint8Array(await invoke('read_file', { path }));
+            const blob = new Blob([arr]);
+            previewURL.value = URL.createObjectURL(blob);
+            previewLoading.value = false;
+        }
     }
 }
 

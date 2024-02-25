@@ -252,6 +252,33 @@ fn get_vpk_name(path: &String) -> String {
         .replace("_dir.vpk", "")
 }
 
+#[tauri::command]
+async fn read_file(state: tauri::State<'_, AppState>, path: String) -> Result<Vec<u8>, String> {
+    println!("Reading file: {}", &path);
+
+    let state_guard = state.inner.lock().unwrap();
+
+    match state_guard.loaded_format {
+        Some(PakFormat::VPKRespawn) => {
+            let vpk = state_guard.revpk.as_ref().unwrap();
+            vpk.read_file(
+                &vpk_archive_path(&state_guard.vpk_path.clone().unwrap()),
+                &get_vpk_name(&state_guard.vpk_path.clone().unwrap()),
+                &path,
+            ).ok_or("Failed to read file".to_string())
+        }
+        Some(PakFormat::VPKVersion1) => {
+            let vpk = state_guard.vpk_version1.as_ref().unwrap();
+            vpk.read_file(
+                &vpk_archive_path(&state_guard.vpk_path.clone().unwrap()),
+                &get_vpk_name(&state_guard.vpk_path.clone().unwrap()),
+                &path,
+            ).ok_or("Failed to read file".to_string())
+        }
+        _ => Err("Unsupported format".to_string())
+    }
+}
+
 fn preview_protocol(app: &AppHandle, req: &Request) -> Result<Response, Box<dyn Error>> {
     let path = urlencoding::decode(req.uri())?;
     let path = path
@@ -930,6 +957,7 @@ fn main() {
             extract_files,
             count_dir,
             extract_cancel,
+            read_file,
         ])
         .register_uri_scheme_protocol("preview", preview_protocol)
         .run(tauri::generate_context!())
