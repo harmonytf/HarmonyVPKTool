@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, ref } from 'vue';
-import { appWindow } from "@tauri-apps/api/window";
+import { getCurrent } from "@tauri-apps/api/window";
 import { useStore } from '../stores/main';
 
 const mainStore = useStore();
 
 let fileHover = ref(false);
 
-const unlisten = appWindow.onFileDropEvent(event => {
+const unlisten = getCurrent().onFileDropEvent(event => {
     if (event.payload.type === 'hover') {
         fileHover.value = event.payload.paths.length == 1 && event.payload.paths[0].endsWith('.vpk');
     } else if (event.payload.type === 'drop') {

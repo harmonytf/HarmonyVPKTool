@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
 import { useStore } from '../stores/main';
-import { invoke } from '@tauri-apps/api/tauri';
-import { platform } from '@tauri-apps/api/os';
+import { convertFileSrc, invoke } from '@tauri-apps/api/core';
+import { platform } from '@tauri-apps/plugin-os';
 import TreeFolder from './TreeFolder.vue';
 import { VPKDirEntry } from '../types';
 import { bytesToSize, getTextEncoding, isAudioFile, isTextFile } from '../util';
@@ -44,8 +44,8 @@ async function previewFile(path: string) {
         previewText.value = new TextDecoder(getTextEncoding(arr)).decode(arr);
         previewLoading.value = false;
     } else if (isAudioFile(previewPath.value)) {
-        if (await platformName === 'win32') {
-            previewURL.value = `https://preview.localhost/` + path;
+        if (await platformName === 'windows') {
+            previewURL.value = convertFileSrc(path, 'preview');
         } else {
             previewLoading.value = true;
             const arr  = new Uint8Array(await invoke('read_file', { path }));

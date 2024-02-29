@@ -9,7 +9,6 @@ use sourcepak::{
     common::detect::{detect_pak_format, PakFormat},
     pak::revpk::format::VPKRespawn,
 };
-use std::error::Error;
 use std::sync::Mutex;
 use std::{fs::File, path::PathBuf};
 use tauri::http::{Request, Response};
@@ -265,7 +264,8 @@ async fn read_file(state: tauri::State<'_, AppState>, path: String) -> Result<Ve
                 &vpk_archive_path(&state_guard.vpk_path.clone().unwrap()),
                 &get_vpk_name(&state_guard.vpk_path.clone().unwrap()),
                 &path,
-            ).ok_or("Failed to read file".to_string())
+            )
+            .ok_or("Failed to read file".to_string())
         }
         Some(PakFormat::VPKVersion1) => {
             let vpk = state_guard.vpk_version1.as_ref().unwrap();
@@ -273,19 +273,17 @@ async fn read_file(state: tauri::State<'_, AppState>, path: String) -> Result<Ve
                 &vpk_archive_path(&state_guard.vpk_path.clone().unwrap()),
                 &get_vpk_name(&state_guard.vpk_path.clone().unwrap()),
                 &path,
-            ).ok_or("Failed to read file".to_string())
+            )
+            .ok_or("Failed to read file".to_string())
         }
-        _ => Err("Unsupported format".to_string())
+        _ => Err("Unsupported format".to_string()),
     }
 }
 
-fn preview_protocol(app: &AppHandle, req: &Request) -> Result<Response, Box<dyn Error>> {
-    let path = urlencoding::decode(req.uri())?;
-    let path = path
-        .replace("preview://localhost/", "")
-        .replace("preview://", "");
+fn preview_protocol(app: &AppHandle, req: Request<Vec<u8>>) -> Response<Vec<u8>> {
+    let path = urlencoding::decode(req.uri().path()).unwrap()[1..].to_string();
 
-    println!("Preview fetching file: {}", &path);
+    println!("Preview fetching file: \"{}\"", &path);
 
     let state: State<AppState> = app.state();
     let state_guard = state.inner.lock().unwrap();
@@ -300,14 +298,16 @@ fn preview_protocol(app: &AppHandle, req: &Request) -> Result<Response, Box<dyn 
             );
 
             if buf.is_some() {
-                tauri::http::ResponseBuilder::new()
+                tauri::http::Response::builder()
                     .header("Access-Control-Allow-Origin", "*")
                     .body(buf.unwrap())
+                    .unwrap()
             } else {
-                tauri::http::ResponseBuilder::new()
+                tauri::http::Response::builder()
                     .header("Access-Control-Allow-Origin", "*")
                     .status(404)
                     .body(Vec::new())
+                    .unwrap()
             }
         }
         Some(PakFormat::VPKVersion1) => {
@@ -319,20 +319,23 @@ fn preview_protocol(app: &AppHandle, req: &Request) -> Result<Response, Box<dyn 
             );
 
             if buf.is_some() {
-                tauri::http::ResponseBuilder::new()
+                tauri::http::Response::builder()
                     .header("Access-Control-Allow-Origin", "*")
                     .body(buf.unwrap())
+                    .unwrap()
             } else {
-                tauri::http::ResponseBuilder::new()
+                tauri::http::Response::builder()
                     .header("Access-Control-Allow-Origin", "*")
                     .status(404)
                     .body(Vec::new())
+                    .unwrap()
             }
         }
-        _ => tauri::http::ResponseBuilder::new()
+        _ => tauri::http::Response::builder()
             .header("Access-Control-Allow-Origin", "*")
-            .status(404)
-            .body(Vec::new()),
+            .status(400)
+            .body(Vec::new())
+            .unwrap(),
     }
 }
 
@@ -564,7 +567,7 @@ async fn extract_dir(
                     if !*running {
                         return;
                     }
-                    
+
                     let path = if file_path.starts_with(" /") {
                         file_path[2..].to_string()
                     } else {
@@ -946,6 +949,9 @@ fn extract_cancel(state: tauri::State<AppState>) {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(AppState::new())
         .invoke_handler(tauri::generate_handler![
             load_vpk,

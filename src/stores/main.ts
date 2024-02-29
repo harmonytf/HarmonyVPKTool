@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue';
-import { invoke } from '@tauri-apps/api/tauri';
-import { open } from '@tauri-apps/api/dialog';
+import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
 import { DirTree } from '../types';
 import { listen } from '@tauri-apps/api/event';
 
@@ -45,8 +45,8 @@ export const useStore = defineStore('main', () => {
 
     async function openVPK() {
         let res = await open({ title: 'Select a VPK file', filters: [{ name: 'VPK files', extensions: ['vpk'] }], multiple: false })
-        if (res !== null && typeof res == 'string') {
-            loadFromPath(res);
+        if (res !== null) {
+            loadFromPath(res.path);
         }
     }
 
