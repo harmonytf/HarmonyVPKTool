@@ -67,10 +67,7 @@ impl ExtractState {
 }
 
 #[tauri::command]
-async fn select_vpk(
-    window: Window,
-    state: tauri::State<'_, AppState>,
-) -> Result<Option<String>, String> {
+async fn select_vpk(window: Window) -> Result<Option<String>, String> {
     let file = AsyncFileDialog::new()
         .set_parent(&window)
         .set_title("Select a VPK file")
