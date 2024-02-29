@@ -20,6 +20,7 @@ rayon = "1.8.1"
 tauri-plugin-dialog = "2.0.0-beta.1"
 tauri-plugin-shell = "2.0.0-beta.1"
 tauri-plugin-os = "2.0.0-beta.1"
+rfd = "0.14.0"
 
 [profile.release]
 strip = true

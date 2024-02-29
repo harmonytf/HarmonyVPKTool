@@ -30,7 +30,7 @@ export const useStore = defineStore('main', () => {
 
         try {
             await invoke('load_vpk', { vpkPath: path });
-            getFiles();
+            await getFiles();
             loading.value = false;
             loaded.value = true;
             hasError.value = false;
@@ -44,9 +44,13 @@ export const useStore = defineStore('main', () => {
     }
 
     async function openVPK() {
-        let res = await open({ title: 'Select a VPK file', filters: [{ name: 'VPK files', extensions: ['vpk'] }], multiple: false })
-        if (res !== null) {
-            loadFromPath(res.path);
+        try {
+            let path = await invoke<string | null>('select_vpk');
+            if (path !== null) {
+                loadFromPath(path);
+            }
+        } catch (e: any) {
+            console.error(e);
         }
     }
 

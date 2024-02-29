@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use rayon::prelude::*;
+use rfd::AsyncFileDialog;
 use serde::Serialize;
 use sourcepak::common::format::PakReader;
 use sourcepak::pak::v1::format::VPKVersion1;
@@ -62,6 +63,26 @@ impl ExtractState {
 
     pub fn reset(&mut self) {
         self.running = false;
+    }
+}
+
+#[tauri::command]
+async fn select_vpk(
+    window: Window,
+    state: tauri::State<'_, AppState>,
+) -> Result<Option<String>, String> {
+    let file = AsyncFileDialog::new()
+        .set_parent(&window)
+        .set_title("Select a VPK file")
+        .add_filter("VPK Files", &["vpk"])
+        .pick_file()
+        .await;
+
+    match file {
+        Some(vpk_file) => {
+            Ok(Some(vpk_file.path().to_str().ok_or("Invalid path")?.to_string()))
+        }
+        None => Ok(None),
     }
 }
 
@@ -954,6 +975,7 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState::new())
         .invoke_handler(tauri::generate_handler![
+            select_vpk,
             load_vpk,
             get_file_list,
             get_file_entry,
