@@ -39,7 +39,7 @@ export const useStore = defineStore('main', () => {
             loading.value = false;
             loaded.value = false;
             hasError.value = true;
-            error.value = e;
+            error.value = JSON.parse(e);
         }
     }
 

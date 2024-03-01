@@ -132,6 +132,19 @@ async fn load_vpk(state: tauri::State<'_, AppState>, vpk_path: String) -> Result
             }
         }
         fmt => {
+            if !vpk_path.ends_with("_dir.vpk") {
+                let vpk_path_buf = PathBuf::from(&vpk_path);
+                let vpk_file_name = vpk_path_buf
+                    .file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
+                if !LANG_STRS.iter().any(|lang| vpk_file_name.starts_with(lang)) {
+                    println!("Tried to open archive file: {}", fmt);
+                    return Err(format!("Tried to open archive file, consider opening english{}_dir.vpk instead.", &vpk_file_name.as_str()[..(vpk_file_name.len() - 8)]));
+                }
+            }
             println!("Unsupported format: {}", fmt);
             return Err(format!("Unsupported format: {}", fmt).to_string());
         }
@@ -246,22 +259,39 @@ fn vpk_archive_path(path: &String) -> String {
 
 fn get_vpk_name(path: &String) -> String {
     let path = PathBuf::from(path);
-    path.file_name()
+    strip_lang(&path)
+        .unwrap()
+        .file_name()
         .unwrap()
         .to_str()
         .unwrap()
-        .replace("english", "")
-        .replace("french", "")
-        .replace("german", "")
-        .replace("italian", "")
-        .replace("japanese", "")
-        .replace("korean", "")
-        .replace("polish", "")
-        .replace("portugese", "")
-        .replace("russian", "")
-        .replace("spanish", "")
-        .replace("tchinese", "")
-        .replace("_dir.vpk", "")
+        .to_string()
+}
+
+const LANG_STRS: [&str; 11] = [
+    "english",
+    "french",
+    "german",
+    "italian",
+    "japanese",
+    "korean",
+    "polish",
+    "portugese",
+    "russian",
+    "spanish",
+    "tchinese",
+];
+
+fn strip_lang(path: &PathBuf) -> Option<PathBuf> {
+    let file_name = path.file_name()?.to_str()?.to_string();
+    let stripped_name = PathBuf::from(LANG_STRS.iter().find_map(|lang| {
+        if file_name.starts_with(lang) {
+            Some(file_name.replacen(lang, "", 1))
+        } else {
+            None
+        }
+    })?);
+    Some(path.parent()?.join(stripped_name))
 }
 
 #[tauri::command]
