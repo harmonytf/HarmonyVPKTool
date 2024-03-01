@@ -284,13 +284,19 @@ const LANG_STRS: [&str; 11] = [
 
 fn strip_lang(path: &PathBuf) -> Option<PathBuf> {
     let file_name = path.file_name()?.to_str()?.to_string();
-    let stripped_name = PathBuf::from(LANG_STRS.iter().find_map(|lang| {
-        if file_name.starts_with(lang) {
-            Some(file_name.replacen(lang, "", 1))
-        } else {
-            None
-        }
-    })?);
+    let stripped_name = PathBuf::from(
+        LANG_STRS
+            .iter()
+            .find_map(|lang| {
+                if file_name.starts_with(lang) {
+                    Some(file_name.replacen(lang, "", 1))
+                } else {
+                    None
+                }
+            })
+            .or(Some(file_name))
+            .unwrap(),
+    );
     Some(path.parent()?.join(stripped_name))
 }
 
