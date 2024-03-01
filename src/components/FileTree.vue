@@ -96,7 +96,7 @@ watch(selectMode, (newVal) => {
 <template>
     <div class="container">
         <div class="file-tree">
-            <TreeFolder :dir="mainStore.fileTree" root @select="selectFile" @check="checkPath" :show-check-boxes="selectMode" :checked-files="checkedFiles" />
+            <TreeFolder :dir="mainStore.fileTree" root @select="selectFile" @check="checkPath" :show-check-boxes="selectMode" :checked-files="checkedFiles" key="fileTree" />
         </div>
         <div class="file-details" v-if="selectedPath">
             <template v-if="selectedPath.endsWith('/')">

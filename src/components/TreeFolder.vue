@@ -22,9 +22,9 @@ function everyChecked(dir: DirTree): boolean {
         <TreeFolder class="dir" v-for="dir in props.dir.dirs" :dir="dir" :key="dir.name"
             :show-check-boxes="props.showCheckBoxes" :checked-files="props.checkedFiles"
             @select="path => emit('select', dir.name + '/' + path)" @check="(path, check) => emit('check', path, check)" />
-        <p v-for="file in props.dir.files" class="file" :key="file" @click="emit('select', file)">
+        <p v-for="file in props.dir.files" class="file" :key="dir.path + '/' + file" @click="emit('select', file)">
             {{ file }}
-            <input type="checkbox" v-if="props.showCheckBoxes"
+            <input type="checkbox" v-show="props.showCheckBoxes"
                 :checked="props.checkedFiles?.has(dir.path + '/' + file)"
                 @change="emit('check', ' /' + file, ($event.target as HTMLInputElement).checked)" />
         </p>
@@ -32,15 +32,15 @@ function everyChecked(dir: DirTree): boolean {
     <details class="folder" v-else>
         <summary @click="emit('select', '')" @click.right.prevent="emit('select', '')">
             {{ props.dir.name ?? "Unnamed" }}
-            <input type="checkbox" v-if="props.showCheckBoxes" :checked="everyChecked(dir)" :indeterminate="!everyChecked(dir) && anyChecked(dir)"
+            <input type="checkbox" v-show="props.showCheckBoxes" :checked="everyChecked(dir)" :indeterminate="!everyChecked(dir) && anyChecked(dir)"
                 @change="emit('check', dir.path + '/', ($event.target as HTMLInputElement).checked)" />
         </summary>
         <TreeFolder class="dir" v-for="dir in props.dir.dirs" :dir="dir" :key="dir.name"
             :show-check-boxes="props.showCheckBoxes" :checked-files="props.checkedFiles"
             @select="path => emit('select', dir.name + '/' + path)" @check="(path, check) => emit('check', path, check)" />
-        <p v-for="file in props.dir.files" class="file" :key="file" @click="emit('select', file)">
+        <p v-for="file in props.dir.files" class="file" :key="dir.path + '/' + file" @click="emit('select', file)">
             {{ file }}
-            <input type="checkbox" v-if="props.showCheckBoxes"
+            <input type="checkbox" v-show="props.showCheckBoxes"
                 :checked="props.checkedFiles?.has(dir.path + '/' + file)"
                 @change="emit('check', dir.path + '/' + file, ($event.target as HTMLInputElement).checked)" />
         </p>
