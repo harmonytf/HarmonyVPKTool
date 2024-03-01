@@ -15,6 +15,8 @@ let selectedEntry = ref<VPKDirEntry | undefined>(undefined);
 
 let showPreview = ref<boolean>(false);
 let previewLoading = ref<boolean>(false);
+let previewDidError = ref<boolean>(false);
+let previewError = ref<string | null>(null);
 let previewPath = ref<string>('');
 let previewURL = ref<string | null>(null);
 let previewText = ref<string>('');
@@ -38,21 +40,27 @@ async function previewFile(path: string) {
 
     showPreview.value = true;
 
-    if (isTextFile(previewPath.value)) {
-        previewLoading.value = true;
-        const arr  = new Uint8Array(await invoke('read_file', { path }));
-        previewText.value = new TextDecoder(getTextEncoding(arr)).decode(arr);
-        previewLoading.value = false;
-    } else if (isAudioFile(previewPath.value)) {
-        if (await platformName === 'windows') {
-            previewURL.value = convertFileSrc(path, 'preview');
-        } else {
+    try {
+        if (isTextFile(previewPath.value)) {
             previewLoading.value = true;
             const arr  = new Uint8Array(await invoke('read_file', { path }));
-            const blob = new Blob([arr]);
-            previewURL.value = URL.createObjectURL(blob);
+            previewText.value = new TextDecoder(getTextEncoding(arr)).decode(arr);
             previewLoading.value = false;
+        } else if (isAudioFile(previewPath.value)) {
+            if (await platformName === 'windows') {
+                previewURL.value = convertFileSrc(path, 'preview');
+            } else {
+                previewLoading.value = true;
+                const arr  = new Uint8Array(await invoke('read_file', { path }));
+                const blob = new Blob([arr]);
+                previewURL.value = URL.createObjectURL(blob);
+                previewLoading.value = false;
+            }
         }
+    } catch (e: any) {
+        previewLoading.value = false;
+        previewDidError.value = true;
+        previewError.value = JSON.parse(e);
     }
 }
 
@@ -60,6 +68,7 @@ function closePreview() {
     previewPath.value = '';
 
     showPreview.value = false;
+    previewDidError.value = false;
     previewURL.value = null;
     previewText.value = '';
 }
@@ -164,6 +173,11 @@ watch(selectMode, (newVal) => {
                 <template v-if="previewLoading">
                     <br>
                     <b>Loading...</b>
+                    <br>
+                </template>
+                <template v-else-if="previewDidError">
+                    <br>
+                    <b>Error:</b> {{ previewError }}
                     <br>
                 </template>
                 <template v-else>
