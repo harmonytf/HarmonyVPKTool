@@ -194,7 +194,7 @@ watch(selectMode, (newVal) => {
                 <input type="checkbox" v-model="selectMode">
             </label>
             <br>
-            <button v-if="selectMode" @click="mainStore.extractFiles([...checkedFiles])">Extract selected</button>
+            <button v-if="selectMode" @click="mainStore.extractFiles([...checkedFiles])" :disabled="checkedFiles.size == 0">Extract selected</button>
             <button v-else @click="mainStore.extractAll">Extract all</button>
         </div>
     </div>

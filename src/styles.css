@@ -104,3 +104,9 @@ input[type="checkbox"] {
     accent-color: var(--color-primary-light);
     box-shadow: none;
 }
+
+button:disabled {
+  opacity: 0.875;
+  filter: brightness(0.875);
+  pointer-events: none;
+}
