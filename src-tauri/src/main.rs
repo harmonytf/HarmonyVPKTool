@@ -266,6 +266,7 @@ fn get_vpk_name(path: &String) -> String {
         .to_str()
         .unwrap()
         .to_string()
+        .replace("_dir.vpk", "")
 }
 
 const LANG_STRS: [&str; 11] = [
