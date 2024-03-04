@@ -132,18 +132,9 @@ async fn load_vpk(state: tauri::State<'_, AppState>, vpk_path: String) -> Result
             }
         }
         fmt => {
-            if !vpk_path.ends_with("_dir.vpk") {
-                let vpk_path_buf = PathBuf::from(&vpk_path);
-                let vpk_file_name = vpk_path_buf
-                    .file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string();
-                if !LANG_STRS.iter().any(|lang| vpk_file_name.starts_with(lang)) {
-                    println!("Tried to open archive file: {}", fmt);
-                    return Err(format!("Tried to open archive file, consider opening \"english{}_dir.vpk\" instead.", &vpk_file_name.as_str()[..(vpk_file_name.len() - 8)]));
-                }
+            if vpk_path.ends_with(".vpk") && !vpk_path.ends_with("dir.vpk") {
+                println!("Tried to open archive file: {}", fmt);
+                return Err(format!("Tried to open archive file, consider opening the file ending \"dir.vpk\" instead."));
             }
             println!("Unsupported format: {}", fmt);
             return Err(format!("Unsupported format: {}", fmt).to_string());
