@@ -564,6 +564,74 @@ fn count_dir(state: tauri::State<'_, AppState>, dir: &str) -> usize {
 }
 
 #[tauri::command]
+fn get_dir_size(state: tauri::State<'_, AppState>, dir: &str) -> usize {
+    let state_guard = state.inner.lock().unwrap();
+
+    match state_guard.loaded_format {
+        Some(PakFormat::VPKRespawn) => {
+            let vpk = state_guard.revpk.as_ref().unwrap();
+
+            vpk.tree
+                .files
+                .iter()
+                .map(|(f, e)| {
+                    if f.starts_with(dir) {
+                        e.file_parts.iter().map(|e| e.entry_length as usize).sum()
+                    } else {
+                        0
+                    }
+                })
+                .sum()
+        }
+        Some(PakFormat::VPKVersion1) => {
+            let vpk = state_guard.vpk_version1.as_ref().unwrap();
+
+            vpk.tree
+                .files
+                .iter()
+                .map(|(f, e)| {
+                    if f.starts_with(dir) {
+                        e.entry_length as usize
+                    } else {
+                        0
+                    }
+                })
+                .sum()
+        }
+        _ => 0,
+    }
+}
+
+#[tauri::command]
+fn get_dir_size_uncompressed(state: tauri::State<'_, AppState>, dir: &str) -> Option<usize> {
+    let state_guard = state.inner.lock().unwrap();
+
+    match state_guard.loaded_format {
+        Some(PakFormat::VPKRespawn) => {
+            let vpk = state_guard.revpk.as_ref().unwrap();
+
+            Some(
+                vpk.tree
+                    .files
+                    .iter()
+                    .map(|(f, e)| {
+                        if f.starts_with(dir) {
+                            e.file_parts
+                                .iter()
+                                .map(|e| e.entry_length_uncompressed as usize)
+                                .sum()
+                        } else {
+                            0
+                        }
+                    })
+                    .sum(),
+            )
+        }
+        _ => None,
+    }
+}
+
+#[tauri::command]
 async fn extract_dir(
     window: Window,
     state: tauri::State<'_, AppState>,
@@ -1004,6 +1072,8 @@ fn main() {
             extract_file,
             extract_files,
             count_dir,
+            get_dir_size,
+            get_dir_size_uncompressed,
             extract_cancel,
             read_file,
         ])

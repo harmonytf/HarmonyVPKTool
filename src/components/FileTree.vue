@@ -21,6 +21,10 @@ let previewPath = ref<string>('');
 let previewURL = ref<string | null>(null);
 let previewText = ref<string>('');
 
+let selectedDirCount = ref(0);
+let selectedDirSize = ref(0);
+let selectedDirDecompressedSize = ref(null);
+
 async function selectFile(path: string) {
     selectedEntry.value = undefined;
     selectedPath.value = path;
@@ -28,6 +32,13 @@ async function selectFile(path: string) {
     if (!path.includes('/')) {
         path = ' /' + path;
     }
+
+    if (path.endsWith('/')) {
+        selectedDirCount.value = await invoke('count_dir', { dir: path });
+        selectedDirSize.value = await invoke('get_dir_size', { dir: path });
+        selectedDirDecompressedSize.value = await invoke('get_dir_size_uncompressed', { dir: path });
+    }
+
     selectedEntry.value = await invoke('get_file_entry', { path });
 }
 
@@ -43,7 +54,7 @@ async function previewFile(path: string) {
     try {
         if (isTextFile(previewPath.value)) {
             previewLoading.value = true;
-            const arr  = new Uint8Array(await invoke('read_file', { path }));
+            const arr = new Uint8Array(await invoke('read_file', { path }));
             previewText.value = new TextDecoder(getTextEncoding(arr)).decode(arr);
             previewLoading.value = false;
         } else if (isAudioFile(previewPath.value)) {
@@ -51,7 +62,7 @@ async function previewFile(path: string) {
                 previewURL.value = convertFileSrc(path, 'preview');
             } else {
                 previewLoading.value = true;
-                const arr  = new Uint8Array(await invoke('read_file', { path }));
+                const arr = new Uint8Array(await invoke('read_file', { path }));
                 const blob = new Blob([arr]);
                 previewURL.value = URL.createObjectURL(blob);
                 previewLoading.value = false;
@@ -105,7 +116,8 @@ watch(selectMode, (newVal) => {
 <template>
     <div class="container">
         <div class="file-tree">
-            <TreeFolder :dir="mainStore.fileTree" root @select="selectFile" @check="checkPath" :show-check-boxes="selectMode" :checked-files="checkedFiles" key="fileTree" />
+            <TreeFolder :dir="mainStore.fileTree" root @select="selectFile" @check="checkPath"
+                :show-check-boxes="selectMode" :checked-files="checkedFiles" key="fileTree" />
         </div>
         <div class="file-details" v-if="selectedPath">
             <template v-if="selectedPath.endsWith('/')">
@@ -114,7 +126,16 @@ watch(selectMode, (newVal) => {
                 <span class="file-path">{{ selectedPath.replace(/\/$/, '') }}</span>
                 <br><br>
                 <button class="extract" @click="mainStore.extractDir(selectedPath)">Extract</button>
+                <br><br>
+                <span><b>Total files:</b> {{ selectedDirCount }}</span>
+                <br>
+                <span><b>{{ selectedDirDecompressedSize == null ? "Size" : "Packed size:" }}</b> {{ bytesToSize(selectedDirSize) }}</span>
+                <template v-if="selectedDirDecompressedSize != null">
+                    <br>
+                    <span><b>Unpacked size:</b> {{ bytesToSize(selectedDirDecompressedSize) }}</span>
+                </template>
             </template>
+
             <template v-else>
                 <b class="title">File details</b>
                 <br>
@@ -135,11 +156,18 @@ watch(selectMode, (newVal) => {
                         {{ selectedEntry.archive_index }}
                     </span>
                     <span v-if="selectedEntry.entry_offset != undefined"><br><b>Offset:</b> 0x{{
-                        selectedEntry.entry_offset.toString(16).toUpperCase() }}</span>
+                selectedEntry.entry_offset.toString(16).toUpperCase() }}</span>
                     <span v-if="selectedEntry.entry_length != undefined"><br><b>Size:</b> {{
-                        bytesToSize(selectedEntry.entry_length) }}</span>
-                    <span v-else-if="selectedEntry.file_parts"><br><b>Size:</b> {{
-                        bytesToSize(selectedEntry.file_parts.reduce((acc, part) => acc + part.entry_length, 0)) }}</span>
+                bytesToSize(selectedEntry.entry_length) }}</span>
+                    <template v-else-if="selectedEntry.file_parts">
+                        <br>
+                        <span><b>Packed size:</b> {{ bytesToSize(selectedEntry.file_parts.reduce((acc, part) => acc +
+                part.entry_length, 0)) }}</span>
+                        <br>
+                        <span><b>Unpacked size:</b> {{ bytesToSize(selectedEntry.file_parts.reduce((acc, part) => acc +
+                part.entry_length_uncompressed, 0)) }}</span>
+                    </template>
+
                     <template v-if="selectedEntry.file_parts">
                         <br>
                         <br>
@@ -170,16 +198,19 @@ watch(selectMode, (newVal) => {
                 <h3>File preview</h3>
                 <span class="path">{{ previewPath }}</span>
                 <br>
+
                 <template v-if="previewLoading">
                     <br>
                     <b>Loading...</b>
                     <br>
                 </template>
+
                 <template v-else-if="previewDidError">
                     <br>
                     <b>Error:</b> {{ previewError }}
                     <br>
                 </template>
+
                 <template v-else>
                     <template v-if="previewURL && isAudioFile(previewPath)">
                         <br>
@@ -189,6 +220,7 @@ watch(selectMode, (newVal) => {
                         <br>
                     </template>
                     <pre v-else-if="isTextFile(previewPath)">{{ previewText }}</pre>
+
                     <template v-else>
                         <br>
                         <b>File type unsupported</b>
@@ -208,7 +240,8 @@ watch(selectMode, (newVal) => {
                 <input type="checkbox" v-model="selectMode">
             </label>
             <br>
-            <button v-if="selectMode" @click="mainStore.extractFiles([...checkedFiles])" :disabled="checkedFiles.size == 0">Extract selected</button>
+            <button v-if="selectMode" @click="mainStore.extractFiles([...checkedFiles])"
+                :disabled="checkedFiles.size == 0">Extract selected</button>
             <button v-else @click="mainStore.extractAll">Extract all</button>
         </div>
     </div>
@@ -331,9 +364,11 @@ watch(selectMode, (newVal) => {
     padding: 1rem;
     text-align: right;
 }
+
 .floating-buttons b {
     font-size: 0.75rem;
 }
+
 .floating-buttons button {
     margin-top: 0.25rem;
 }
