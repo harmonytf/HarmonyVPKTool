@@ -42,11 +42,11 @@ const mainStore = useStore();
         <span>{{ mainStore.extractProgress }} / {{ mainStore.extractTotal }} {{ mainStore.extractErrors.length ? `(${mainStore.extractErrors.length} failed)` : '' }}</span>
       </div>
       <template v-if="mainStore.extracting">
-        <p class="timer">Elapsed {{ ((Date.now() - mainStore.extractStartTime) / 1000).toFixed(3) }}s</p>
+        <p class="timer">Elapsed {{ (mainStore.extractElapsedTime / 1000).toFixed(3) }}s</p>
         <button @click="mainStore.cancelExtract">Cancel</button>
       </template>
       <template v-else>
-        <p class="timer">Took {{ ((mainStore.extractFinishTime - mainStore.extractStartTime) / 1000).toFixed(3) }}s</p>
+        <p class="timer">Took {{ (mainStore.extractElapsedTime / 1000).toFixed(3) }}s</p>
         <button @click="mainStore.showExtract = false">Close</button>
       </template>
     </div>
