@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use chrono::{Datelike, Timelike, Utc};
 use rayon::prelude::*;
 use rfd::AsyncFileDialog;
 use serde::Serialize;
@@ -10,6 +11,7 @@ use sourcepak::{
     common::detect::{detect_pak_format, PakFormat},
     pak::revpk::format::VPKRespawn,
 };
+use std::io::Write;
 use std::sync::Mutex;
 use std::{fs::File, path::PathBuf};
 use tauri::http::{Request, Response};
@@ -413,6 +415,11 @@ async fn extract_all(
         state_guard.running = true;
     }
 
+    let log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
+        .or(Err("Couldn't create log file"))?;
+    let log_mutex = Mutex::new(log_file);
+
+
     match state_guard.loaded_format {
         Some(PakFormat::VPKRespawn) => {
             let vpk = state_guard.revpk.as_ref().unwrap();
@@ -444,7 +451,7 @@ async fn extract_all(
                     );
                     match res {
                         Ok(_) => {
-                            println!("Extracted: {}", &file_path);
+                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
                             window
                                 .emit(
                                     "extracted",
@@ -456,7 +463,7 @@ async fn extract_all(
                                 .unwrap();
                         }
                         Err(e) => {
-                            println!("Failed to extract {}: {}", &file_path, e);
+                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, e);
                             window
                                 .emit(
                                     "extract-fail",
@@ -502,7 +509,7 @@ async fn extract_all(
                     );
                     match res {
                         Ok(_) => {
-                            println!("Extracted: {}", &file_path);
+                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
                             window
                                 .emit(
                                     "extracted",
@@ -514,7 +521,7 @@ async fn extract_all(
                                 .unwrap();
                         }
                         Err(e) => {
-                            println!("Failed to extract {}: {}", &file_path, e);
+                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, e);
                             window
                                 .emit(
                                     "extract-fail",
@@ -659,6 +666,12 @@ async fn extract_dir(
         state_guard.running = true;
     }
 
+    let log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
+        .or(Err("Couldn't create log file"))?;
+    let log_mutex = Mutex::new(log_file);
+
+    log!(log_mutex.lock().unwrap(), "Extracting directory {} from \"{}\" ({})", dir, &vpk_name, state_guard.loaded_format.as_ref().unwrap_or(&PakFormat::Unknown));
+
     match state_guard.loaded_format {
         Some(PakFormat::VPKRespawn) => {
             let vpk = state_guard.revpk.as_ref().unwrap();
@@ -691,7 +704,7 @@ async fn extract_dir(
                     );
                     match res {
                         Ok(_) => {
-                            println!("Extracted: {}", &file_path);
+                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
                             window
                                 .emit(
                                     "extracted",
@@ -703,7 +716,7 @@ async fn extract_dir(
                                 .unwrap();
                         }
                         Err(e) => {
-                            println!("Failed to extract {}: {}", &file_path, e);
+                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, e);
                             window
                                 .emit(
                                     "extract-fail",
@@ -750,7 +763,7 @@ async fn extract_dir(
                     );
                     match res {
                         Ok(_) => {
-                            println!("Extracted: {}", &file_path);
+                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
                             window
                                 .emit(
                                     "extracted",
@@ -762,7 +775,7 @@ async fn extract_dir(
                                 .unwrap();
                         }
                         Err(e) => {
-                            println!("Failed to extract {}: {}", &file_path, &e);
+                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, &e);
                             window
                                 .emit(
                                     "extract-fail",
@@ -804,6 +817,11 @@ async fn extract_file(
             .ok_or("Couldn't clone VPK path")?,
     );
 
+    let mut log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
+        .or(Err("Couldn't create log file"))?;
+
+    log!(log_file, "Extracting 1 file from \"{}\" ({})", &vpk_name, state_guard.loaded_format.as_ref().unwrap_or(&PakFormat::Unknown));
+
     match state_guard.loaded_format {
         Some(PakFormat::VPKRespawn) => {
             let vpk = state_guard.revpk.as_ref().unwrap();
@@ -823,7 +841,7 @@ async fn extract_file(
 
             match res {
                 Ok(_) => {
-                    println!("Extracted: {}", &file_path);
+                    log!(log_file, "Extracted: {}", &file_path);
                     window
                         .emit(
                             "extracted",
@@ -836,7 +854,7 @@ async fn extract_file(
                     Ok(())
                 }
                 Err(e) => {
-                    println!("Failed to extract {}: {}", &file_path, &e);
+                    log!(log_file, "Failed to extract {}: {}", &file_path, &e);
                     window
                         .emit(
                             "extract-fail",
@@ -868,7 +886,7 @@ async fn extract_file(
 
             match res {
                 Ok(_) => {
-                    println!("Extracted: {}", &file_path);
+                    log!(log_file, "Extracted: {}", &file_path);
                     window
                         .emit(
                             "extracted",
@@ -881,7 +899,7 @@ async fn extract_file(
                     Ok(())
                 }
                 Err(e) => {
-                    println!("Failed to extract {}: {}", &file_path, &e);
+                    log!(log_file, "Failed to extract {}: {}", &file_path, &e);
                     window
                         .emit(
                             "extract-fail",
@@ -921,11 +939,17 @@ async fn extract_files(
             .ok_or("Couldn't clone VPK path")?,
     );
 
+    let log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
+        .or(Err("Couldn't create log file"))?;
+    let log_mutex = Mutex::new(log_file);
+
     let running = true;
     {
         let mut state_guard = state.extract_state.lock().unwrap();
         state_guard.running = true;
     }
+
+    log!(log_mutex.lock().unwrap(), "Extracting {} files from \"{}\" ({})", files.len(), &vpk_name, state_guard.loaded_format.as_ref().unwrap_or(&PakFormat::Unknown));
 
     match state_guard.loaded_format {
         Some(PakFormat::VPKRespawn) => {
@@ -959,7 +983,7 @@ async fn extract_files(
                     );
                     match res {
                         Ok(_) => {
-                            println!("Extracted: {}", &file_path);
+                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
                             window
                                 .emit(
                                     "extracted",
@@ -971,7 +995,7 @@ async fn extract_files(
                                 .unwrap();
                         }
                         Err(e) => {
-                            println!("Failed to extract {}: {}", &file_path, e);
+                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, e);
                             window
                                 .emit(
                                     "extract-fail",
@@ -1018,7 +1042,7 @@ async fn extract_files(
                     );
                     match res {
                         Ok(_) => {
-                            println!("Extracted: {}", &file_path);
+                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
                             window
                                 .emit(
                                     "extracted",
@@ -1030,7 +1054,7 @@ async fn extract_files(
                                 .unwrap();
                         }
                         Err(e) => {
-                            println!("Failed to extract {}: {}", &file_path, &e);
+                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, &e);
                             window
                                 .emit(
                                     "extract-fail",
@@ -1080,4 +1104,24 @@ fn main() {
         .register_uri_scheme_protocol("preview", preview_protocol)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[macro_export]
+macro_rules! log {
+    ($logfile:expr, $($arg:tt)*) => {{
+        println!($($arg)*);
+        let now = Utc::now();
+        let (_, year) = now.year_ce();
+        let _ = $logfile.write_all(format!(
+            "[{}-{:02}-{:02} {:02}:{:02}:{:02}.{:03}] {}\n",
+            year,
+            now.month(),
+            now.day(),
+            now.hour(),
+            now.minute(),
+            now.second(),
+            now.nanosecond() / 1000000, // milliseconds
+            format!($($arg)*),
+        ).as_bytes());
+    }};
 }

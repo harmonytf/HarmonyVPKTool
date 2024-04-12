@@ -21,6 +21,7 @@ tauri-plugin-dialog = "2.0.0-beta.1"
 tauri-plugin-shell = "2.0.0-beta.1"
 tauri-plugin-os = "2.0.0-beta.1"
 rfd = { version = "0.14.0", default-features = false, features = ["gtk3"] }
+chrono = "0.4.37"
 
 [profile.release]
 strip = true
