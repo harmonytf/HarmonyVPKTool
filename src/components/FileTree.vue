@@ -42,7 +42,9 @@ async function selectFile(path: string) {
     selectedEntry.value = await invoke('get_file_entry', { path });
 }
 
-async function previewFile(path: string) {
+async function previewFile(path: string | null) {
+    if (path == null) return;
+    
     previewPath.value = path;
 
     if (!path.includes('/')) {

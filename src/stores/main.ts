@@ -122,7 +122,9 @@ export const useStore = defineStore('main', () => {
         }
     }
 
-    async function extractDir(dir: string) {
+    async function extractDir(dir: string | null) {
+        if (!dir) return;
+
         let res = await open({ title: 'Select a output directory', directory: true, multiple: false })
         if (res !== null && typeof res == 'string') {
             extractElapsedTime.value = 0;
@@ -158,7 +160,9 @@ export const useStore = defineStore('main', () => {
         }
     }
 
-    async function extractFile(filePath: string) {
+    async function extractFile(filePath: string | null) {
+        if (!filePath) return;
+
         let res = await open({ title: 'Select a output directory', directory: true, multiple: false })
         if (res !== null && typeof res == 'string') {
             if (!filePath.includes('/')) {

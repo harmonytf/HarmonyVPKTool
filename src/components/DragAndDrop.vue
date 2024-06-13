@@ -7,15 +7,15 @@ const mainStore = useStore();
 
 let fileHover = ref(false);
 
-const unlisten = getCurrent().onFileDropEvent(event => {
-    if (event.payload.type === 'hover') {
+const unlisten = getCurrent().onDragDropEvent(event => {
+    if (event.payload.type === 'dragged') {
         fileHover.value = event.payload.paths.length == 1 && event.payload.paths[0].endsWith('.vpk');
-    } else if (event.payload.type === 'drop') {
+    } else if (event.payload.type === 'dropped') {
         fileHover.value = false;
         if (event.payload.paths.length == 1 && event.payload.paths[0].endsWith('.vpk')) {
             mainStore.loadFromPath(event.payload.paths[0]);
         }
-    } else {
+    } else if (event.payload.type === 'cancelled') {
         fileHover.value = false;
     }
 });
