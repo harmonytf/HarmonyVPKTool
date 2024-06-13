@@ -39,7 +39,17 @@ export const useStore = defineStore('main', () => {
             loading.value = false;
             loaded.value = false;
             hasError.value = true;
-            error.value = JSON.parse(e);
+            switch (typeof e) {
+                case 'string':
+                    error.value = e;
+                    break;
+                case 'object':
+                    error.value = JSON.stringify(e);
+                    break;
+                default:
+                    error.value = 'An unknown error occurred';
+                    break;
+            }
         }
     }
 
