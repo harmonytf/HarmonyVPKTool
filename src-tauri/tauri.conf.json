@@ -34,7 +34,7 @@
   "plugins": {},
   "app": {
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost preview:; media-src 'self' blob: preview: http://preview.localhost asset: http://asset.localhost"
     },
     "windows": [
       {

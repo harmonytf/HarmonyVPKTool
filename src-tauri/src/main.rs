@@ -3,7 +3,6 @@
 
 use chrono::{Datelike, Timelike, Utc};
 use rayon::prelude::*;
-use rfd::AsyncFileDialog;
 use serde::Serialize;
 use sourcepak::common::format::PakReader;
 use sourcepak::pak::v1::format::VPKVersion1;
@@ -11,6 +10,7 @@ use sourcepak::{
     common::detect::{detect_pak_format, PakFormat},
     pak::revpk::format::VPKRespawn,
 };
+use tauri_plugin_dialog::DialogExt;
 use std::io::Write;
 use std::sync::Mutex;
 use std::{fs::File, path::PathBuf};
@@ -70,14 +70,13 @@ impl ExtractState {
 
 #[tauri::command]
 async fn select_vpk(window: Window) -> Option<String> {
-    let file = AsyncFileDialog::new()
+    let file = window.dialog().file()
         .set_parent(&window)
         .set_title("Select a VPK file")
         .add_filter("VPK Files", &["vpk"])
-        .pick_file()
-        .await;
+        .blocking_pick_file();
 
-    Some(file?.path().to_str()?.to_string())
+    Some(file?.path.to_str()?.to_string())
 }
 
 #[tauri::command]
@@ -1083,7 +1082,6 @@ fn extract_cancel(state: tauri::State<AppState>) {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
-        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState::new())
         .invoke_handler(tauri::generate_handler![
@@ -1101,7 +1099,9 @@ fn main() {
             extract_cancel,
             read_file,
         ])
-        .register_uri_scheme_protocol("preview", preview_protocol)
+        .register_asynchronous_uri_scheme_protocol("preview", move |app, request, responder| {
+            responder.respond(preview_protocol(app, request));
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

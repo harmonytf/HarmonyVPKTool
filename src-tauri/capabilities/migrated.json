@@ -13,7 +13,6 @@
     "resources:default",
     "menu:default",
     "tray:default",
-    "shell:allow-open",
     "dialog:allow-open",
     "os:allow-platform",
     "os:allow-version",

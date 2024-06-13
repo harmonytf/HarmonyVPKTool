@@ -62,8 +62,8 @@ async function previewFile(path: string) {
                 previewURL.value = convertFileSrc(path, 'preview');
             } else {
                 previewLoading.value = true;
-                const arr = new Uint8Array(await invoke('read_file', { path }));
-                const blob = new Blob([arr]);
+                const res = await fetch(convertFileSrc(path, 'preview'));
+                const blob = await res.blob();
                 previewURL.value = URL.createObjectURL(blob);
                 previewLoading.value = false;
             }
