@@ -92,10 +92,15 @@ async fn load_vpk(state: tauri::State<'_, AppState>, vpk_path: String) -> Result
             let vpk = VPKRespawn::try_from(&mut file);
 
             match vpk {
-                Ok(vpk) => {
+                Ok(mut vpk) => {
                     let mut state_guard = state.inner.lock().unwrap();
 
                     println!("VPK loaded: {}", &vpk_path);
+
+                    let archive_path = vpk_archive_path(&vpk_path);
+                    let vpk_name = get_vpk_name(&vpk_path);
+                    println!("Attempting to read VPK CAM files from: {}", &archive_path);
+                    vpk.read_all_cams(&archive_path, &vpk_name)?;
 
                     state_guard.vpk_path = Some(vpk_path);
                     state_guard.loaded_format = Some(PakFormat::VPKRespawn);

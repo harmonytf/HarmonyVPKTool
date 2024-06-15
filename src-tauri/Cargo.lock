@@ -3291,13 +3291,10 @@ dependencies = [
 
 [[package]]
 name = "sourcepak"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c04d084e670e5227dd0c5a446515e861c102badc5987afb6737f439a1a2ba77"
+version = "0.2.0"
 dependencies = [
  "crc",
  "lzham-alpha-sys",
- "once_cell",
 ]
 
 [[package]]
