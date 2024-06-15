@@ -23,6 +23,7 @@ const mainStore = useStore();
     height: 100%;
     grid-template-rows: 1fr auto 1fr 56px;
     line-height: 1.5;
+    padding: 2rem;
 }
 
 .error-text {
