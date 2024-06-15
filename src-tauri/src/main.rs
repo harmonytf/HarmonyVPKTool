@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use chrono::{Datelike, Timelike, Utc};
-use rayon::prelude::*;
+use rayon::{prelude::*, spawn};
 use serde::Serialize;
 use sourcepak::common::format::PakReader;
 use sourcepak::pak::v1::format::VPKVersion1;
@@ -10,12 +10,13 @@ use sourcepak::{
     common::detect::{detect_pak_format, PakFormat},
     pak::revpk::format::VPKRespawn,
 };
-use tauri_plugin_dialog::DialogExt;
 use std::io::Write;
+use std::sync::mpsc::channel;
 use std::sync::Mutex;
 use std::{fs::File, path::PathBuf};
 use tauri::http::{Request, Response};
 use tauri::{AppHandle, Manager, State, Window};
+use tauri_plugin_dialog::DialogExt;
 
 pub struct AppState {
     inner: Mutex<InnerState>,
@@ -70,7 +71,9 @@ impl ExtractState {
 
 #[tauri::command]
 async fn select_vpk(window: Window) -> Option<String> {
-    let file = window.dialog().file()
+    let file = window
+        .dialog()
+        .file()
         .set_parent(&window)
         .set_title("Select a VPK file")
         .add_filter("VPK Files", &["vpk"])
@@ -424,13 +427,45 @@ async fn extract_all(
         let mut state_guard = state.extract_state.lock().unwrap();
         state_guard.running = true;
     }
+    
 
-    let log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
+    let mut log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
         .or(Err("Couldn't create log file"))?;
-    let log_mutex = Mutex::new(log_file);
 
+    log!(
+        log_file,
+        "Extracting all files from \"{}\" ({})",
+        &vpk_name,
+        state_guard
+            .loaded_format
+            .as_ref()
+            .unwrap_or(&PakFormat::Unknown)
+    );
+    
+    let (sender, receiver) = channel::<ExtractedPayload>();
 
-    match state_guard.loaded_format {
+    spawn(move || {
+        loop {
+            if let Ok(payload) = receiver.recv() {
+                match &payload.e {
+                    Some(e) => {
+                        log!(log_file, "Failed to extract {}: {}", &payload.file, e);
+                        window.emit("extract-fail", payload).unwrap();
+                    }
+                    None => {
+                        if payload.file.is_empty() {
+                            break;
+                        }
+
+                        log!(log_file, "Extracted: {}", &payload.file);
+                        window.emit("extracted", payload).unwrap();
+                    }
+                }
+            }
+        }
+    });
+
+    let res = match state_guard.loaded_format {
         Some(PakFormat::VPKRespawn) => {
             let vpk = state_guard.revpk.as_ref().unwrap();
 
@@ -461,28 +496,16 @@ async fn extract_all(
                     );
                     match res {
                         Ok(_) => {
-                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
-                            window
-                                .emit(
-                                    "extracted",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: None,
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: None,
+                            });
                         }
                         Err(e) => {
-                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, e);
-                            window
-                                .emit(
-                                    "extract-fail",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: Some(e),
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: Some(e),
+                            });
                         }
                     }
                 });
@@ -519,28 +542,16 @@ async fn extract_all(
                     );
                     match res {
                         Ok(_) => {
-                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
-                            window
-                                .emit(
-                                    "extracted",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: None,
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: None,
+                            });
                         }
                         Err(e) => {
-                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, e);
-                            window
-                                .emit(
-                                    "extract-fail",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: Some(e),
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: Some(e),
+                            });
                         }
                     }
                 });
@@ -548,7 +559,14 @@ async fn extract_all(
             Ok(())
         }
         _ => Err("Unsupported format".to_string()),
-    }
+    };
+
+    let _ = sender.send(ExtractedPayload {
+        file: "".to_string(),
+        e: None,
+    });
+
+    res
 }
 
 #[tauri::command]
@@ -676,13 +694,42 @@ async fn extract_dir(
         state_guard.running = true;
     }
 
-    let log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
+    let mut log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
         .or(Err("Couldn't create log file"))?;
-    let log_mutex = Mutex::new(log_file);
 
-    log!(log_mutex.lock().unwrap(), "Extracting directory {} from \"{}\" ({})", dir, &vpk_name, state_guard.loaded_format.as_ref().unwrap_or(&PakFormat::Unknown));
+    log!(
+        log_file,
+        "Extracting directory {} from \"{}\" ({})",
+        dir,
+        &vpk_name,
+        state_guard
+            .loaded_format
+            .as_ref()
+            .unwrap_or(&PakFormat::Unknown)
+    );
 
-    match state_guard.loaded_format {
+    let (sender, receiver) = channel::<ExtractedPayload>();
+
+    spawn(move || loop {
+        if let Ok(payload) = receiver.recv() {
+            match &payload.e {
+                Some(e) => {
+                    log!(log_file, "Failed to extract {}: {}", &payload.file, e);
+                    window.emit("extract-fail", payload).unwrap();
+                }
+                None => {
+                    if payload.file.is_empty() {
+                        break;
+                    }
+
+                    log!(log_file, "Extracted: {}", &payload.file);
+                    window.emit("extracted", payload).unwrap();
+                }
+            }
+        }
+    });
+
+    let res = match state_guard.loaded_format {
         Some(PakFormat::VPKRespawn) => {
             let vpk = state_guard.revpk.as_ref().unwrap();
 
@@ -714,28 +761,16 @@ async fn extract_dir(
                     );
                     match res {
                         Ok(_) => {
-                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
-                            window
-                                .emit(
-                                    "extracted",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: None,
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: None,
+                            });
                         }
                         Err(e) => {
-                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, e);
-                            window
-                                .emit(
-                                    "extract-fail",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: Some(e),
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: Some(e),
+                            });
                         }
                     }
                 });
@@ -773,28 +808,16 @@ async fn extract_dir(
                     );
                     match res {
                         Ok(_) => {
-                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
-                            window
-                                .emit(
-                                    "extracted",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: None,
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: None,
+                            });
                         }
                         Err(e) => {
-                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, &e);
-                            window
-                                .emit(
-                                    "extract-fail",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: Some(e),
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: Some(e),
+                            });
                         }
                     }
                 });
@@ -802,7 +825,14 @@ async fn extract_dir(
             Ok(())
         }
         _ => Err("Unsupported format".to_string()),
-    }
+    };
+
+    let _ = sender.send(ExtractedPayload {
+        file: "".to_string(),
+        e: None,
+    });
+
+    res
 }
 
 #[tauri::command]
@@ -830,7 +860,15 @@ async fn extract_file(
     let mut log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
         .or(Err("Couldn't create log file"))?;
 
-    log!(log_file, "Extracting 1 file from \"{}\" ({})", &vpk_name, state_guard.loaded_format.as_ref().unwrap_or(&PakFormat::Unknown));
+    log!(
+        log_file,
+        "Extracting 1 file from \"{}\" ({})",
+        &vpk_name,
+        state_guard
+            .loaded_format
+            .as_ref()
+            .unwrap_or(&PakFormat::Unknown)
+    );
 
     match state_guard.loaded_format {
         Some(PakFormat::VPKRespawn) => {
@@ -949,9 +987,40 @@ async fn extract_files(
             .ok_or("Couldn't clone VPK path")?,
     );
 
-    let log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
+    let mut log_file = File::create(format!("{}/_harmony_extract.log", out_dir))
         .or(Err("Couldn't create log file"))?;
-    let log_mutex = Mutex::new(log_file);
+
+    log!(
+        log_file,
+        "Extracting {} files from \"{}\" ({})",
+        files.len(),
+        &vpk_name,
+        state_guard
+            .loaded_format
+            .as_ref()
+            .unwrap_or(&PakFormat::Unknown)
+    );
+
+    let (sender, receiver) = channel::<ExtractedPayload>();
+
+    spawn(move || loop {
+        if let Ok(payload) = receiver.recv() {
+            match &payload.e {
+                Some(e) => {
+                    log!(log_file, "Failed to extract {}: {}", &payload.file, e);
+                    window.emit("extract-fail", payload).unwrap();
+                }
+                None => {
+                    if payload.file.is_empty() {
+                        break;
+                    }
+
+                    log!(log_file, "Extracted: {}", &payload.file);
+                    window.emit("extracted", payload).unwrap();
+                }
+            }
+        }
+    });
 
     let running = true;
     {
@@ -959,9 +1028,7 @@ async fn extract_files(
         state_guard.running = true;
     }
 
-    log!(log_mutex.lock().unwrap(), "Extracting {} files from \"{}\" ({})", files.len(), &vpk_name, state_guard.loaded_format.as_ref().unwrap_or(&PakFormat::Unknown));
-
-    match state_guard.loaded_format {
+    let res = match state_guard.loaded_format {
         Some(PakFormat::VPKRespawn) => {
             let vpk = state_guard.revpk.as_ref().unwrap();
 
@@ -993,28 +1060,16 @@ async fn extract_files(
                     );
                     match res {
                         Ok(_) => {
-                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
-                            window
-                                .emit(
-                                    "extracted",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: None,
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: None,
+                            });
                         }
                         Err(e) => {
-                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, e);
-                            window
-                                .emit(
-                                    "extract-fail",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: Some(e),
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: Some(e),
+                            });
                         }
                     }
                 });
@@ -1052,28 +1107,16 @@ async fn extract_files(
                     );
                     match res {
                         Ok(_) => {
-                            log!(log_mutex.lock().unwrap(), "Extracted: {}", &file_path);
-                            window
-                                .emit(
-                                    "extracted",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: None,
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: None,
+                            });
                         }
                         Err(e) => {
-                            log!(log_mutex.lock().unwrap(), "Failed to extract {}: {}", &file_path, &e);
-                            window
-                                .emit(
-                                    "extract-fail",
-                                    ExtractedPayload {
-                                        file: file_path.clone(),
-                                        e: Some(e),
-                                    },
-                                )
-                                .unwrap();
+                            let _ = sender.send(ExtractedPayload {
+                                file: file_path.clone(),
+                                e: Some(e),
+                            });
                         }
                     }
                 });
@@ -1081,7 +1124,14 @@ async fn extract_files(
             Ok(())
         }
         _ => Err("Unsupported format".to_string()),
-    }
+    };
+    
+    let _ = sender.send(ExtractedPayload {
+        file: "".to_string(),
+        e: None,
+    });
+
+    res
 }
 
 #[tauri::command]
