@@ -1,10 +1,15 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useStore } from '../stores/main';
+import { listen } from '@tauri-apps/api/event';
 
 const mainStore = useStore();
 
 let step = ref("Parsing VPK directory tree...");
+
+listen<string>('load_step', (event) => {
+    step.value = event.payload;
+});
 </script>
 
 <template>

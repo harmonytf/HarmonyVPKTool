@@ -80,7 +80,11 @@ async fn select_vpk(window: Window) -> Option<String> {
 }
 
 #[tauri::command]
-async fn load_vpk(state: tauri::State<'_, AppState>, vpk_path: String) -> Result<(), String> {
+async fn load_vpk(
+    state: tauri::State<'_, AppState>,
+    window: tauri::Window,
+    vpk_path: String,
+) -> Result<(), String> {
     let mut file = File::open(&vpk_path).expect("Failed to open file");
 
     let pak_format = detect_pak_format(&mut file);
@@ -100,6 +104,8 @@ async fn load_vpk(state: tauri::State<'_, AppState>, vpk_path: String) -> Result
                     let archive_path = vpk_archive_path(&vpk_path);
                     let vpk_name = get_vpk_name(&vpk_path);
                     println!("Attempting to read VPK CAM files from: {}", &archive_path);
+
+                    let _ = window.emit("load_step", "Reading CAM files...");
                     vpk.read_all_cams(&archive_path, &vpk_name)?;
 
                     state_guard.vpk_path = Some(vpk_path);
