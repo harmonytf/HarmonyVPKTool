@@ -25,4 +25,4 @@ To build only the executable, instead run `yarn tauri build -b none`.
 ## Details:
 Uses [sourcepak](https://github.com/barnabwhy/sourcepak-rs) to unpack files from VPKs.
 
-sourcepak version: [v0.1.1](https://crates.io/crates/sourcepak/0.1.1)
+sourcepak version: [v0.2.0](https://crates.io/crates/sourcepak/0.2.0)
